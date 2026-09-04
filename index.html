@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>2026 北京出发自驾大环线 · 数字化中国地图导航</title>
+  <title>2026 北京出发自驾大环线 · 数字化中国地图导航与自定义线路规划</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -43,7 +43,7 @@
   <style>
     :root {
       --header-height: 58px;
-      --sidebar-width: 390px;
+      --sidebar-width: 410px;
     }
 
     *, *::before, *::after {
@@ -127,6 +127,11 @@
       stroke-dasharray: 10, 7;
       animation: dashMove 30s linear infinite;
     }
+    .route-path-custom {
+      filter: drop-shadow(0 2px 6px rgba(124, 58, 237, 0.5));
+      stroke-dasharray: 8, 6;
+      animation: dashMove 20s linear infinite;
+    }
 
     @keyframes dashMove {
       to {
@@ -146,8 +151,76 @@
       cursor: pointer;
     }
     .custom-waypoint-marker:hover {
-      transform: scale(1.3);
+      transform: scale(1.25);
       z-index: 999 !important;
+    }
+
+    /* Subtle Scenic Spot Marker (以不显眼的方式显示在地图上) */
+    .subtle-spot-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .subtle-spot-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(71, 85, 105, 0.55);
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .subtle-spot-container:hover .subtle-spot-dot {
+      width: 16px;
+      height: 16px;
+      background: #0284c7;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.3), 0 3px 10px rgba(0,0,0,0.25);
+      transform: scale(1.15);
+    }
+    .subtle-spot-container.in-custom-route .subtle-spot-dot {
+      width: 18px;
+      height: 18px;
+      background: #7c3aed !important;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.35), 0 3px 8px rgba(0,0,0,0.25);
+    }
+    .custom-order-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #7c3aed;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+
+    /* Subtle spot tooltip customization (鼠标指上去才会显示) */
+    .leaflet-tooltip.scenic-spot-hover-card {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 12px !important;
+      padding: 10px 12px !important;
+      box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.15), 0 4px 6px -2px rgba(15, 23, 42, 0.05) !important;
+      color: #0f172a !important;
+      font-size: 12px !important;
+      max-width: 290px !important;
+      white-space: normal !important;
+      opacity: 1 !important;
+    }
+    .leaflet-tooltip.scenic-spot-hover-card::before {
+      border-top-color: #ffffff !important;
     }
 
     .pulse-dot::after {
@@ -169,7 +242,7 @@
     @media (min-width: 1024px) {
       :root {
         --header-height: 60px;
-        --sidebar-width: 390px;
+        --sidebar-width: 410px;
       }
       .mobile-only { display: none !important; }
       .desktop-only { display: flex !important; }
@@ -178,7 +251,7 @@
     @media (min-width: 769px) and (max-width: 1023px) {
       :root {
         --header-height: 56px;
-        --sidebar-width: 330px;
+        --sidebar-width: 350px;
       }
       .desktop-only { display: flex !important; }
       .mobile-only { display: none !important; }
@@ -198,8 +271,8 @@
         top: 0;
         bottom: 0;
         left: 0;
-        width: 86vw;
-        max-width: 380px;
+        width: 88vw;
+        max-width: 400px;
         z-index: 50;
         box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
       }
@@ -243,11 +316,11 @@
     <!-- Left: Brand Logo & Title -->
     <div class="flex items-center gap-2 sm:gap-3 min-w-0">
       <!-- Mobile Drawer Toggle Button -->
-      <button id="mobileDrawerOpenBtn" class="mobile-only p-1.5 sm:p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 active:scale-95 transition" title="展开行程路书">
+      <button id="mobileDrawerOpenBtn" class="mobile-only p-1.5 sm:p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 active:scale-95 transition" title="展开行程与规划">
         <i data-lucide="menu" class="w-5 h-5"></i>
       </button>
 
-      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center shadow-sm text-white shrink-0">
+      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-sm text-white shrink-0">
         <i data-lucide="map-pin" class="w-4 h-4 sm:w-5 sm:h-5"></i>
       </div>
 
@@ -256,7 +329,7 @@
           <h1 class="font-bold text-xs xs:text-sm sm:text-base md:text-lg text-slate-900 tracking-tight truncate">北京自驾大环线</h1>
           <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 shrink-0 hidden xs:inline-block">浅色地图</span>
         </div>
-        <p class="text-[11px] text-slate-400 hidden lg:block truncate">数字化智能路书 · 燕山长城 / 草原石林 / 辽东山海 / 齐鲁圣山</p>
+        <p class="text-[11px] text-slate-400 hidden lg:block truncate">数字化智能路书 · 悬停探秘景区 · 自定义画线规划</p>
       </div>
     </div>
 
@@ -275,8 +348,15 @@
         </a>
       </nav>
       
+      <!-- Subtle Spots Toggle Button (Hover Feature indicator) -->
+      <button id="toggleSubtleSpotsBtn" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 transition" title="开启/隐藏地图上的20大核心景区微标（鼠标悬停查看特色）">
+        <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+        <span class="hidden md:inline">20大景区微标</span>
+        <span class="text-[10px] text-sky-600 bg-sky-50 px-1 py-0.2 rounded border border-sky-200 font-mono">悬停可见</span>
+      </button>
+
       <!-- Desktop & iPad Search Input -->
-      <div class="relative hidden sm:block w-32 md:w-44 lg:w-56">
+      <div class="relative hidden sm:block w-32 md:w-44 lg:w-52">
         <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"></i>
         <input 
           id="spotSearchInput"
@@ -341,6 +421,9 @@
     </div>
   </div>
 
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-16 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
   <!-- Main Work Area -->
   <div class="flex-1 flex relative overflow-hidden w-full">
 
@@ -350,7 +433,7 @@
       <!-- Drawer Top Header (Mobile Close Button) -->
       <div class="md:hidden px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
         <div class="flex items-center gap-2">
-          <span class="font-bold text-sm text-slate-800">行程路书详情</span>
+          <span class="font-bold text-sm text-slate-800" id="mobileDrawerHeaderTitle">自驾路书与画线</span>
           <span id="mobileDrawerDayCount" class="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-mono font-medium">15天</span>
         </div>
         <button id="mobileDrawerCloseBtn" class="p-1 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition">
@@ -369,7 +452,7 @@
             </span>
             <div class="min-w-0">
               <div class="text-xs font-bold text-sky-900 truncate">20 大核心景区风貌图鉴</div>
-              <div class="text-[10px] text-sky-600 truncate">点击查阅省份分布与风景分类</div>
+              <div class="text-[10px] text-sky-600 truncate">含省份/风景分类/子景点 · 鼠标悬停地图小点即显</div>
             </div>
           </div>
           <i data-lucide="chevron-right" class="w-4 h-4 text-sky-500 group-hover:translate-x-0.5 transition shrink-0"></i>
@@ -379,27 +462,31 @@
           <span class="text-xs font-bold uppercase tracking-wider text-slate-500">规划方案选择</span>
           <button id="compareAllBtn" class="text-xs px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1 font-semibold shadow-sm active:scale-95">
             <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-            <span>全景对比</span>
+            <span>方案全景对比</span>
           </button>
         </div>
 
-        <!-- 3 Route Tab Buttons -->
-        <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-          <button id="tabRoute1" class="route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 bg-white text-sky-700 shadow-sm font-bold border border-sky-100 active:scale-95">
+        <!-- 4 Route Tab Buttons (3 Presets + 1 DIY Custom Route) -->
+        <div class="grid grid-cols-4 gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          <button id="tabRoute1" class="route-tab px-1 py-1.5 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 bg-white text-sky-700 shadow-sm font-bold border border-sky-100 active:scale-95">
             <span class="text-xs">方案一</span>
-            <span class="text-[10px] opacity-90 font-normal truncate max-w-full">山海边境</span>
+            <span class="text-[9px] opacity-90 font-normal truncate max-w-full">山海边境</span>
           </button>
-          <button id="tabRoute2" class="route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900 active:scale-95">
+          <button id="tabRoute2" class="route-tab px-1 py-1.5 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900 active:scale-95">
             <span class="text-xs">方案二</span>
-            <span class="text-[10px] opacity-90 font-normal truncate max-w-full">草原石林</span>
+            <span class="text-[9px] opacity-90 font-normal truncate max-w-full">草原石林</span>
           </button>
-          <button id="tabRoute3" class="route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900 active:scale-95">
+          <button id="tabRoute3" class="route-tab px-1 py-1.5 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900 active:scale-95">
             <span class="text-xs">方案三</span>
-            <span class="text-[10px] opacity-90 font-normal truncate max-w-full">名山大环</span>
+            <span class="text-[9px] opacity-90 font-normal truncate max-w-full">名山大环</span>
+          </button>
+          <button id="tabRouteCustom" class="route-tab px-1 py-1.5 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-purple-700 hover:bg-purple-50 active:scale-95">
+            <span class="text-xs flex items-center gap-0.5 font-bold">自定义 <span class="text-[9px]">✍️</span></span>
+            <span class="text-[9px] text-purple-600 font-semibold truncate max-w-full">自由画线</span>
           </button>
         </div>
 
-        <!-- Route Overview Card -->
+        <!-- Route Overview Card (Normal Mode) -->
         <div id="routeSummaryCard" class="bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm">
           <div class="flex items-center justify-between mb-1">
             <h2 id="currentRouteTitle" class="font-bold text-xs sm:text-sm text-sky-800 truncate">方案一：15天 关外山海与边境线</h2>
@@ -430,20 +517,63 @@
           </div>
         </div>
 
+        <!-- Custom DIY Route Control Panel (Shown only in DIY Mode) -->
+        <div id="customRoutePanel" class="hidden bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-3 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-ping shrink-0"></span>
+              <h2 class="font-bold text-xs sm:text-sm text-purple-900">自定义线路 · 自由画线</h2>
+            </div>
+            <span id="customStatTag" class="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-purple-200 text-purple-900 border border-purple-300">0 站 · 0 km</span>
+          </div>
+          
+          <p class="text-[11px] text-purple-800 leading-relaxed bg-white/70 p-2 rounded-lg border border-purple-100">
+            💡 <strong>画线指引：</strong>在地图上<strong>直接点击任意景点</strong>进行连线，或从下方景区库一键加入。可随时重排或一键闭环返京。
+          </p>
+
+          <!-- DIY Action Buttons Toolbar -->
+          <div class="grid grid-cols-3 gap-1.5 text-xs">
+            <button id="addBeijingBtn" class="py-1.5 px-2 bg-white hover:bg-purple-100 text-purple-800 rounded-lg border border-purple-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
+              <i data-lucide="map-pin" class="w-3 h-3 text-purple-600"></i>
+              <span>+ 北京起点</span>
+            </button>
+            <button id="closeLoopBtn" class="py-1.5 px-2 bg-white hover:bg-purple-100 text-purple-800 rounded-lg border border-purple-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
+              <i data-lucide="rotate-ccw" class="w-3 h-3 text-purple-600"></i>
+              <span>闭环返京</span>
+            </button>
+            <button id="undoCustomBtn" class="py-1.5 px-2 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
+              <i data-lucide="undo" class="w-3 h-3 text-slate-500"></i>
+              <span>撤销上步</span>
+            </button>
+            <button id="loadTemplateBtn" class="py-1.5 px-2 bg-white hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
+              <i data-lucide="sparkles" class="w-3 h-3 text-indigo-600"></i>
+              <span>载入经典模板</span>
+            </button>
+            <button id="copyCustomItineraryBtn" class="py-1.5 px-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-[11px] flex items-center justify-center gap-1 transition shadow-sm">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span>复制路书</span>
+            </button>
+            <button id="clearCustomBtn" class="py-1.5 px-2 bg-white hover:bg-rose-50 text-rose-600 rounded-lg border border-rose-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
+              <i data-lucide="trash-2" class="w-3 h-3 text-rose-500"></i>
+              <span>清空重画</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Action Tools (Play Tour & Fit Map) -->
-        <div class="flex items-center gap-2 pt-0.5">
+        <div id="normalActionTools" class="flex items-center gap-2 pt-0.5">
           <button id="playAnimationBtn" class="flex-1 py-1.5 px-2.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 active:scale-98 transition flex items-center justify-center gap-1.5 text-xs font-semibold shadow-sm">
             <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-600"></i>
             <span>漫游轨迹回放</span>
           </button>
           <button id="fitRouteBtn" class="py-1.5 px-3 rounded-lg bg-white hover:bg-slate-50 active:scale-98 border border-slate-200 text-slate-700 hover:text-slate-900 transition flex items-center justify-center gap-1 text-xs font-medium shadow-sm">
             <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-            <span>居中</span>
+            <span>居中全景</span>
           </button>
         </div>
       </div>
 
-      <!-- Itinerary Day-by-Day List -->
+      <!-- Scrollable Itinerary / Custom Route Section -->
       <div class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 bg-slate-50/60" id="itineraryList">
         <!-- Dynamically rendered -->
       </div>
@@ -453,10 +583,22 @@
     <main class="flex-1 relative h-full w-full overflow-hidden">
       <div id="map"></div>
 
+      <!-- Top Notification Bar in Custom Mode -->
+      <div id="customModeHud" class="hidden absolute top-3 sm:top-5 left-3 sm:left-5 z-20 bg-white/95 backdrop-blur-md border border-purple-300 px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-2.5 max-w-[calc(100vw-24px)]">
+        <div class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-ping shrink-0"></div>
+        <div class="min-w-0">
+          <div class="text-[10px] text-purple-700 font-bold uppercase tracking-wider leading-none">自主画线模式激活</div>
+          <div class="text-xs text-slate-700 truncate mt-0.5">点击地图上的景点小圆点，即可顺次绘制线路并测距</div>
+        </div>
+        <button onclick="exitCustomMode()" class="ml-2 text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded font-medium transition shrink-0">
+          退出画线
+        </button>
+      </div>
+
       <!-- Floating Legend (Desktop & iPad) -->
       <div id="desktopLegend" class="hidden sm:block absolute bottom-6 right-6 z-20 bg-white/95 backdrop-blur-md border border-slate-200 p-3.5 rounded-xl shadow-xl text-xs space-y-2 max-w-[280px]">
         <div class="flex items-center justify-between font-bold text-slate-800 border-b border-slate-100 pb-1.5">
-          <span>路线方案标识</span>
+          <span>路线方案与图例</span>
           <i data-lucide="compass" class="w-4 h-4 text-sky-600"></i>
         </div>
         <div class="space-y-1">
@@ -472,22 +614,31 @@
             <span class="w-3 h-3 rounded-full bg-amber-600 shrink-0 inline-block shadow-sm"></span>
             <span class="text-slate-700 font-medium truncate">方案三：15天 圣山大环</span>
           </div>
+          <div class="flex items-center gap-2 cursor-pointer hover:bg-purple-50 p-1 rounded transition" onclick="selectCustomRouteMode()">
+            <span class="w-3 h-3 rounded-full bg-purple-600 shrink-0 inline-block shadow-sm"></span>
+            <span class="text-purple-700 font-bold truncate">自定义：自由画线连接</span>
+          </div>
+          <div class="flex items-center gap-2 pt-1 border-t border-slate-100 text-[11px] text-slate-500">
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-400 border border-white shrink-0 inline-block shadow-xs"></span>
+            <span>20大景点微标（鼠标悬停显特色）</span>
+          </div>
         </div>
       </div>
 
       <!-- Mobile Bottom Floating Quick Bar (Phone only) -->
-      <div class="sm:hidden absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
+      <div class="sm:hidden absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-1.5 pointer-events-none">
         <!-- Left: Quick Switcher Pill -->
         <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-1 shadow-lg flex items-center gap-1 pointer-events-auto shrink-0">
           <button onclick="selectRoute(1)" id="mobileQuickR1" class="px-2 py-1 rounded-lg text-xs font-bold bg-sky-100 text-sky-800 transition">方案1</button>
           <button onclick="selectRoute(2)" id="mobileQuickR2" class="px-2 py-1 rounded-lg text-xs text-slate-600 transition">方案2</button>
           <button onclick="selectRoute(3)" id="mobileQuickR3" class="px-2 py-1 rounded-lg text-xs text-slate-600 transition">方案3</button>
+          <button onclick="selectCustomRouteMode()" id="mobileQuickDIY" class="px-2 py-1 rounded-lg text-xs font-bold text-purple-700 hover:bg-purple-50 transition">画线✍️</button>
         </div>
 
-        <!-- Right: Open Itinerary Drawer Pill -->
+        <!-- Right: Open Drawer Pill -->
         <button id="mobileFloatingDrawerBtn" class="bg-slate-900 text-white shadow-lg shadow-slate-900/20 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 pointer-events-auto active:scale-95 transition">
           <i data-lucide="list-ordered" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span>每日行程</span>
+          <span>行程清单</span>
         </button>
       </div>
 
@@ -512,7 +663,223 @@
     // Responsive helper
     const isMobile = () => window.innerWidth <= 768;
 
-    // Route Definitions
+    // Beijing Base Node
+    const BEIJING_NODE = {
+      id: 0,
+      province: "北京",
+      fullName: "北京（出发/终点枢纽）",
+      shortName: "北京大本营",
+      landscapeType: "国家首都 / 环线出发与归巢",
+      subSpots: "京承高速 · 天安门 · 鸟巢 · 环线大枢纽",
+      coords: [39.9042, 116.4074],
+      desc: "自驾环线大本营，多条国家高速公路汇聚交汇，自此启程并闭环返航。"
+    };
+
+    // 20 Scenic Spots Master Data
+    const SCENIC_SPOTS_DATA = [
+      {
+        id: 1,
+        province: "河北",
+        fullName: "避暑山庄及外八庙（含普陀宗乘之庙、磬锤峰）",
+        shortName: "承德避暑山庄及外八庙",
+        landscapeType: "皇家园林与庙宇",
+        subSpots: "普陀宗乘之庙（小布达拉宫）、磬锤峰、须弥福寿之庙",
+        coords: [40.9880, 117.9392],
+        desc: "清代皇帝夏令避暑与处理政务的皇家园林，融合江南园林与塞北风光；外八庙体现汉藏蒙多元建筑融合。"
+      },
+      {
+        id: 2,
+        province: "河北",
+        fullName: "金山岭长城·古北水镇（含司马台长城）",
+        shortName: "金山岭长城与古北水镇",
+        landscapeType: "长城险关/水镇夜景",
+        subSpots: "司马台长城夜景、古北水镇水乡、金山岭敌楼群",
+        coords: [40.6769, 117.2471],
+        desc: "万里长城金山独秀，视野开阔敌楼密集；古北水镇依司马台长城而建，北方水乡夜色与无人机孔明灯交相辉映。"
+      },
+      {
+        id: 3,
+        province: "河北",
+        fullName: "北戴河·山海关·老龙头（含鸽子窝公园）",
+        shortName: "山海关、老龙头与北戴河",
+        landscapeType: "海滨/长城入海口",
+        subSpots: "山海关天下第一关、老龙头入海处、鸽子窝公园红日浴海",
+        coords: [40.0076, 119.7562],
+        desc: "两京锁钥无双地，万里长城第一关；老龙头长城入海雄姿；北戴河大潮坪看候鸟与海上红日升起。"
+      },
+      {
+        id: 4,
+        province: "河北",
+        fullName: "木兰围场·坝上草原（含塞罕坝国家森林公园）",
+        shortName: "木兰围场与塞罕坝林海",
+        landscapeType: "森林/皇家猎苑",
+        subSpots: "塞罕坝国家森林公园、机械林场、七星湖湿地",
+        coords: [42.4116, 117.2519],
+        desc: "清代皇家秋狝围猎之地，百万亩人工浩瀚林海与起伏草甸相映生辉，秋季层林尽染，夏季清凉避暑。"
+      },
+      {
+        id: 5,
+        province: "河北",
+        fullName: "白石山景区",
+        shortName: "保定涞源白石山",
+        landscapeType: "峰林/云海地貌",
+        subSpots: "双雄石悬崖绝壁栈道、大理岩峰林、高空云海佛光",
+        coords: [39.3364, 114.6865],
+        desc: "北方“张家界”，全国唯一的大理岩峰林地貌，太行之巅万仞悬崖，云海漫卷，漫步千米高空绝壁栈道。"
+      },
+      {
+        id: 6,
+        province: "辽宁",
+        fullName: "千山风景名胜区（含弥勒大佛、无量观）",
+        shortName: "鞍山千山风景名胜区",
+        landscapeType: "山岳/佛道名山",
+        subSpots: "天然弥勒大佛、无量观、五佛顶",
+        coords: [41.0264, 123.1362],
+        desc: "辽东第一名山，无峰不奇、无石不峭，弥勒大佛高耸入云，为东北释道合一的朝圣胜地。"
+      },
+      {
+        id: 7,
+        province: "辽宁",
+        fullName: "本溪水洞（含关门山、枫林谷）",
+        shortName: "本溪水洞与关门山枫林",
+        landscapeType: "地下暗河/溶洞/红叶",
+        subSpots: "水洞暗河泛舟、关门山秋水红叶、枫林谷森林氧吧",
+        coords: [41.2965, 124.0864],
+        desc: "世界最长充水溶洞，乘船行于亿年地下暗河之中；关门山被誉为“东北小黄山”，秋季红叶如火。"
+      },
+      {
+        id: 8,
+        province: "辽宁",
+        fullName: "盘锦红海滩国家风景廊道",
+        shortName: "盘锦红海滩风景廊道",
+        landscapeType: "湿地/红色海岸线",
+        subSpots: "碱蓬草红海滩、爱情红海、稻田画区、黑嘴鸥栖息地",
+        coords: [40.9790, 121.8021],
+        desc: "全球保存最完好的湿地景观之一，娇艳的碱蓬草铺就壮丽红色海岸线，落日下如火如荼。"
+      },
+      {
+        id: 9,
+        province: "辽宁",
+        fullName: "棋盘山风景区（含森林动物园、关东影视城）",
+        shortName: "沈阳棋盘山风景区",
+        landscapeType: "湖光山色/休闲",
+        subSpots: "秀湖环湖、沈阳森林动物园、关东影视城",
+        coords: [41.9392, 123.6823],
+        desc: "沈阳近郊天然氧吧，秀湖碧波荡漾，环湖绿道清幽，兼具山水度假与民国影视风情。"
+      },
+      {
+        id: 10,
+        province: "辽宁",
+        fullName: "兴城古城",
+        shortName: "葫芦岛兴城明代古城",
+        landscapeType: "明代古城/海滨温泉",
+        subSpots: "明代城墙、蓟辽督师府、钟鼓楼、兴城海滨",
+        coords: [40.6186, 120.7107],
+        desc: "我国现存最完整的明代卫城之一，袁崇焕宁远大捷发生地；依山傍海，城泉相拥。"
+      },
+      {
+        id: 11,
+        province: "辽宁",
+        fullName: "锦州笔架山",
+        shortName: "锦州笔架山潮汐天桥",
+        landscapeType: "海中孤岛/自然奇观",
+        subSpots: "潮汐天桥奇观、三清阁、跨海索道",
+        coords: [40.8123, 120.9782],
+        desc: "海中笔架孤岛，潮落时现一条长1.6公里的卵石天桥直通海岛，潮涨天桥没入汪洋，世所罕见。"
+      },
+      {
+        id: 12,
+        province: "辽宁",
+        fullName: "医巫闾山",
+        shortName: "锦州北镇医巫闾山",
+        landscapeType: "东北名山/摩崖石刻",
+        subSpots: "大石棚、望海寺、桃花洞摩崖碑刻",
+        coords: [41.6062, 121.7335],
+        desc: "东北三大名山之首，隋唐五大镇山之北方幽州镇山，千峰竞秀，多代帝王祭祀与文人摩崖胜地。"
+      },
+      {
+        id: 13,
+        province: "辽宁",
+        fullName: "沈阳市区人文点（沈阳故宫、张氏帅府）",
+        shortName: "沈阳故宫与张氏帅府",
+        landscapeType: "历史古建",
+        subSpots: "沈阳故宫大政殿与十王亭、张氏帅府大青楼、赵一荻故居",
+        coords: [41.7963, 123.4532],
+        desc: "关外盛京一朝发祥地，清初满汉合璧宫殿建筑；民国奉系统帅张作霖、张学良父子官邸与私宅。"
+      },
+      {
+        id: 14,
+        province: "内蒙古",
+        fullName: "乌兰布统草原（含公主湖、将军泡子）",
+        shortName: "赤峰乌兰布统草原",
+        landscapeType: "丘陵草原/湖泊",
+        subSpots: "公主湖、将军泡子、蛤蟆坝白桦林、影视基地",
+        coords: [42.5938, 117.2415],
+        desc: "欧式丘陵草原景观，白桦、湿地与草甸错落起伏，康熙平定噶尔丹古战场，摄影与自驾胜地。"
+      },
+      {
+        id: 15,
+        province: "内蒙古",
+        fullName: "阿斯哈图石林景区",
+        shortName: "克什克腾阿斯哈图石林",
+        landscapeType: "冰川花岗岩石林",
+        subSpots: "月亮城堡、鲲鹏落草原、擎天双柱石阵",
+        coords: [43.9482, 117.4721],
+        desc: "第四纪冰川雕琢的石林奇观，花岗岩地貌如城堡古塔突兀挺立于高山草甸之上，极为震撼。"
+      },
+      {
+        id: 16,
+        province: "京津 / 吉林",
+        fullName: "盘山（天津蓟州）",
+        shortName: "天津蓟州盘山风景区",
+        landscapeType: "山岳/古刹名山",
+        subSpots: "三盘暮雨胜景、天成寺古刹、挂月峰",
+        coords: [40.0934, 117.2608],
+        desc: "“早知有盘山，何必下江南”，乾隆帝曾32次巡幸；上盘松胜、中盘石胜、下盘水胜。"
+      },
+      {
+        id: 17,
+        province: "京津 / 吉林",
+        fullName: "长白山·天池（吉林）",
+        shortName: "吉林长白山天池与瀑布",
+        landscapeType: "火山湖/原始森林",
+        subSpots: "天池火山湖、长白瀑布、聚龙高热温泉群、绿渊潭",
+        coords: [42.0041, 128.0583],
+        desc: "十六座奇峰环抱的蓝宝石高山火山口湖，东北第一神山，兼具垂直植物带谱与壮丽冰瀑地貌。"
+      },
+      {
+        id: 18,
+        province: "山东 / 山西",
+        fullName: "泰山风景名胜区（山东泰安）",
+        shortName: "山东泰安泰山风景名胜区",
+        landscapeType: "五岳之首/名山",
+        subSpots: "南天门、日观峰云海、玉皇顶、十八盘",
+        coords: [36.2558, 117.1065],
+        desc: "五岳独尊，天下第一山！历代帝王封禅圣地，东岳泰山拔地通天，摩崖碑碣林立，晨观红日破云出。"
+      },
+      {
+        id: 19,
+        province: "山东 / 山西",
+        fullName: "青岛崂山·滨海线（山东青岛）",
+        shortName: "青岛崂山风景区滨海线",
+        landscapeType: "海上名山/海滨",
+        subSpots: "巨峰索道、太清宫道观、仰口湾海景绝壁",
+        coords: [36.1458, 120.6189],
+        desc: "“泰山虽云高，不如东海崂”，道教全真天下第二丛林，山海相依，巨石危峰直插蔚蓝黄海。"
+      },
+      {
+        id: 20,
+        province: "山东 / 山西",
+        fullName: "五台山风景名胜区（山西忻州）",
+        shortName: "山西忻州五台山风景名胜区",
+        landscapeType: "佛教名山/高山草甸",
+        subSpots: "菩萨顶、显通寺、塔院寺大白塔、黛螺顶、五大台顶",
+        coords: [39.0142, 113.5937],
+        desc: "中国四大佛教名山之首，文殊菩萨道场，青庙黄庙交融共存；五座台顶平坦辽阔，盛夏清凉怡人。"
+      }
+    ];
+
+    // Preset Routes Data
     const ROUTES_DATA = {
       1: {
         id: 1,
@@ -607,16 +974,22 @@
       }
     };
 
-    // State
+    // State Variables
     let currentRouteId = 1;
     let isCompareMode = false;
+    let isCustomMode = false;
     let map = null;
     let routeLayers = {};
     let markerLayers = {};
+    let subtleSpotsLayer = null;
+    let customRoutePolyline = null;
+    let customMarkersGroup = null;
+    let customSelectedSpots = []; // Array of spot objects in order
+    let showSubtleSpots = true;
     let animTimer = null;
     let animStep = 0;
 
-    // Tile Layers (Clean Light sources, no carto)
+    // Tile Layers (Clean Light Sources, strictly NO carto.com)
     const TILE_SOURCES = {
       amap: L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
         maxZoom: 18,
@@ -639,6 +1012,24 @@
     };
     let currentTileLayer = TILE_SOURCES.amap;
 
+    // Toast Notification helper
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-600 text-white' : type === 'warn' ? 'bg-amber-500 text-white' : 'bg-slate-900 text-white';
+      toast.className = `${bg} px-3.5 py-2 rounded-xl text-xs font-medium shadow-lg transition-all transform duration-300 translate-y-2 opacity-0 flex items-center gap-2 pointer-events-auto max-w-xs`;
+      toast.innerHTML = `<span>${msg}</span>`;
+      container.appendChild(toast);
+      
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
     // Init Map
     function initMap() {
       map = L.map('map', {
@@ -653,7 +1044,21 @@
       // Add AutoNavi Light Tile Layer as Default
       currentTileLayer.addTo(map);
 
-      // Draw all routes into memory
+      // Initialize Custom Route Graphics Layers
+      customMarkersGroup = L.featureGroup().addTo(map);
+      customRoutePolyline = L.polyline([], {
+        color: '#7c3aed',
+        weight: 4,
+        opacity: 0.95,
+        className: 'route-path-custom',
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(map);
+
+      // Build subtle spots layer (20 核心景区，不显眼的方式，鼠标指上去才会显示)
+      buildSubtleScenicSpots();
+
+      // Draw all preset routes into memory
       Object.keys(ROUTES_DATA).forEach(id => {
         buildRouteGraphics(ROUTES_DATA[id]);
       });
@@ -662,11 +1067,92 @@
       selectRoute(1);
     }
 
-    // Generate graphics for a route
+    // Build Subtle Scenic Spots Layer
+    function buildSubtleScenicSpots() {
+      subtleSpotsLayer = L.featureGroup();
+
+      SCENIC_SPOTS_DATA.forEach(spot => {
+        // Subtle dot icon
+        const html = `
+          <div class="subtle-spot-container" id="subtle-marker-${spot.id}">
+            <div class="subtle-spot-dot" title="${spot.shortName}"></div>
+          </div>
+        `;
+
+        const icon = L.divIcon({
+          html: html,
+          className: '',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+
+        const marker = L.marker(spot.coords, { icon: icon });
+
+        // Tooltip: shown ONLY on mouseover (鼠标指上去才会显示)
+        const tooltipHtml = `
+          <div class="space-y-1.5 text-left">
+            <div class="flex items-center justify-between gap-1.5 border-b border-slate-100 pb-1">
+              <span class="font-bold text-xs text-sky-900 truncate">${spot.fullName.split('（')[0]}</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 shrink-0 font-mono">${spot.province}</span>
+            </div>
+            <div class="text-[10px] text-slate-500 font-medium">
+              <span class="text-slate-400">风景类型：</span><span class="text-slate-700 font-semibold">${spot.landscapeType}</span>
+            </div>
+            <div class="text-[10px] text-slate-600 leading-snug">
+              <span class="text-slate-400">包含景点：</span>${spot.subSpots}
+            </div>
+            <div class="text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded-lg border border-slate-100 leading-relaxed">
+              💡 ${spot.desc}
+            </div>
+            <div class="pt-1 flex items-center justify-between text-[9px] text-purple-600 font-medium border-t border-slate-100">
+              <span>${isCustomMode ? '✍️ 点击可加入自定义线路' : '👉 点击可在列表/地图高亮'}</span>
+              <span class="text-slate-400">#${spot.id}</span>
+            </div>
+          </div>
+        `;
+
+        marker.bindTooltip(tooltipHtml, {
+          direction: 'top',
+          offset: [0, -7],
+          opacity: 1,
+          className: 'scenic-spot-hover-card'
+        });
+
+        // Click handler
+        marker.on('click', () => {
+          if (isCustomMode) {
+            toggleSpotInCustomRoute(spot);
+          } else {
+            handleSearch(spot.shortName);
+            showToast(`已定位到：${spot.shortName}`, 'info');
+          }
+        });
+
+        subtleSpotsLayer.addLayer(marker);
+      });
+
+      subtleSpotsLayer.addTo(map);
+    }
+
+    // Toggle subtle spots visibility
+    function toggleSubtleSpotsVisibility() {
+      showSubtleSpots = !showSubtleSpots;
+      const btn = document.getElementById('toggleSubtleSpotsBtn');
+      if (showSubtleSpots) {
+        map.addLayer(subtleSpotsLayer);
+        if (btn) btn.classList.replace('opacity-50', 'opacity-100');
+        showToast('已开启 20 大核心景区微标', 'info');
+      } else {
+        map.removeLayer(subtleSpotsLayer);
+        if (btn) btn.classList.replace('opacity-100', 'opacity-50');
+        showToast('已隐藏景区微标', 'info');
+      }
+    }
+
+    // Generate graphics for a preset route
     function buildRouteGraphics(route) {
       const latlngs = route.days.map(d => d.coords);
 
-      // Outer glow line for light map
       const glowLine = L.polyline(latlngs, {
         color: route.color,
         weight: 9,
@@ -675,7 +1161,6 @@
         lineJoin: 'round'
       });
 
-      // Main inner dashed line
       const mainLine = L.polyline(latlngs, {
         color: route.color,
         weight: 4,
@@ -709,7 +1194,7 @@
 
         const marker = L.marker(d.coords, { icon: icon });
 
-        // Popup Content (Light Responsive Theme)
+        // Popup Content
         const popupHtml = `
           <div class="space-y-1.5 min-w-[200px] max-w-[280px]">
             <div class="flex items-center justify-between border-b border-slate-100 pb-1">
@@ -737,27 +1222,38 @@
       markerLayers[route.id] = markersGroup;
     }
 
-    // Switch Route
+    // Switch Preset Route (1, 2, or 3)
     function selectRoute(routeId) {
       stopAnimation();
       isCompareMode = false;
+      isCustomMode = false;
       currentRouteId = routeId;
       const route = ROUTES_DATA[routeId];
 
+      // Hide custom UI panels
+      document.getElementById('customRoutePanel').classList.add('hidden');
+      document.getElementById('routeSummaryCard').classList.remove('hidden');
+      document.getElementById('normalActionTools').classList.remove('hidden');
+      document.getElementById('customModeHud').classList.add('hidden');
+      customRoutePolyline.setLatLngs([]);
+      customMarkersGroup.clearLayers();
+
       // Update Tabs UI
-      document.querySelectorAll('.route-tab').forEach((tab, index) => {
-        const id = index + 1;
+      ['tabRoute1', 'tabRoute2', 'tabRoute3', 'tabRouteCustom'].forEach((tabId, idx) => {
+        const tab = document.getElementById(tabId);
+        if (!tab) return;
+        const id = idx + 1;
         if (id === routeId) {
-          tab.className = `route-tab px-1.5 py-2 rounded-lg font-bold transition text-center flex flex-col items-center gap-0.5 shadow-sm bg-white border border-slate-200`;
-          if (id === 1) { tab.classList.add('text-sky-700', 'border-sky-200'); }
-          if (id === 2) { tab.classList.add('text-emerald-700', 'border-emerald-200'); }
-          if (id === 3) { tab.classList.add('text-amber-700', 'border-amber-200'); }
+          tab.className = `route-tab px-1 py-1.5 rounded-lg font-bold transition text-center flex flex-col items-center gap-0.5 shadow-sm bg-white border border-slate-200`;
+          if (id === 1) tab.classList.add('text-sky-700', 'border-sky-200');
+          if (id === 2) tab.classList.add('text-emerald-700', 'border-emerald-200');
+          if (id === 3) tab.classList.add('text-amber-700', 'border-amber-200');
         } else {
-          tab.className = 'route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900';
+          tab.className = 'route-tab px-1 py-1.5 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900';
         }
       });
 
-      // Update Mobile Floating Bar buttons
+      // Mobile Quick Buttons
       [1, 2, 3].forEach(id => {
         const btn = document.getElementById(`mobileQuickR${id}`);
         if (!btn) return;
@@ -769,8 +1265,10 @@
           btn.className = 'px-2 py-1 rounded-lg text-xs text-slate-600 transition';
         }
       });
+      const mobileDIY = document.getElementById('mobileQuickDIY');
+      if (mobileDIY) mobileDIY.className = 'px-2 py-1 rounded-lg text-xs font-bold text-purple-700 hover:bg-purple-50 transition';
 
-      // Update Compare button styling
+      // Compare button styling reset
       const compBtn = document.getElementById('compareAllBtn');
       compBtn.classList.remove('bg-indigo-600', 'text-white');
       compBtn.classList.add('bg-indigo-50', 'text-indigo-700');
@@ -798,8 +1296,10 @@
       
       const mobileDrawerBadge = document.getElementById('mobileDrawerDayCount');
       if (mobileDrawerBadge) mobileDrawerBadge.textContent = `${route.totalDays}天`;
+      const mobileDrawerHeader = document.getElementById('mobileDrawerHeaderTitle');
+      if (mobileDrawerHeader) mobileDrawerHeader.textContent = `行程路书 · ${route.badge}`;
 
-      // Clear other layers and add current
+      // Clear layers and add current
       Object.keys(ROUTES_DATA).forEach(id => {
         if (map.hasLayer(routeLayers[id])) map.removeLayer(routeLayers[id]);
         if (map.hasLayer(markerLayers[id])) map.removeLayer(markerLayers[id]);
@@ -808,7 +1308,7 @@
       routeLayers[routeId].addTo(map);
       markerLayers[routeId].addTo(map);
 
-      // Fit map bounds to current route with responsive padding
+      // Fit map bounds
       const pad = isMobile() ? [20, 20] : [40, 40];
       map.fitBounds(routeLayers[routeId].getBounds(), { padding: pad });
 
@@ -816,13 +1316,435 @@
       renderItineraryList(route);
     }
 
+    // ==========================================
+    // CUSTOM DIY ROUTE LOGIC (自定义画线规划)
+    // ==========================================
+    function selectCustomRouteMode() {
+      stopAnimation();
+      isCompareMode = false;
+      isCustomMode = true;
+
+      // Remove preset route layers
+      Object.keys(ROUTES_DATA).forEach(id => {
+        if (map.hasLayer(routeLayers[id])) map.removeLayer(routeLayers[id]);
+        if (map.hasLayer(markerLayers[id])) map.removeLayer(markerLayers[id]);
+      });
+
+      // Update Tabs UI
+      ['tabRoute1', 'tabRoute2', 'tabRoute3'].forEach(id => {
+        document.getElementById(id).className = 'route-tab px-1 py-1.5 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900';
+      });
+      const customTab = document.getElementById('tabRouteCustom');
+      customTab.className = 'route-tab px-1 py-1.5 rounded-lg font-bold transition text-center flex flex-col items-center gap-0.5 shadow-sm bg-purple-600 text-white border border-purple-700';
+
+      // Mobile Quick Buttons
+      [1, 2, 3].forEach(id => {
+        const btn = document.getElementById(`mobileQuickR${id}`);
+        if (btn) btn.className = 'px-2 py-1 rounded-lg text-xs text-slate-600 transition';
+      });
+      const mobileDIY = document.getElementById('mobileQuickDIY');
+      if (mobileDIY) mobileDIY.className = 'px-2 py-1 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-sm transition';
+
+      // Switch Panels
+      document.getElementById('routeSummaryCard').classList.add('hidden');
+      document.getElementById('normalActionTools').classList.add('hidden');
+      document.getElementById('customRoutePanel').classList.remove('hidden');
+      document.getElementById('customModeHud').classList.remove('hidden');
+
+      const mobileDrawerBadge = document.getElementById('mobileDrawerDayCount');
+      if (mobileDrawerBadge) mobileDrawerBadge.textContent = `${customSelectedSpots.length}站`;
+      const mobileDrawerHeader = document.getElementById('mobileDrawerHeaderTitle');
+      if (mobileDrawerHeader) mobileDrawerHeader.textContent = `自定义画线路书`;
+
+      // If empty, auto-add Beijing start point
+      if (customSelectedSpots.length === 0) {
+        customSelectedSpots.push(BEIJING_NODE);
+      }
+
+      // Redraw custom route
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+      showToast('已进入自定义画线模式！直接点击地图上的景点或下方列表即可连线', 'info');
+    }
+
+    function exitCustomMode() {
+      selectRoute(1);
+    }
+
+    // Add or remove spot in custom route
+    function toggleSpotInCustomRoute(spot) {
+      const idx = customSelectedSpots.findIndex(s => s.id === spot.id && s.id !== 0);
+      if (idx !== -1) {
+        customSelectedSpots.splice(idx, 1);
+        showToast(`已移出线路：${spot.shortName}`, 'warn');
+      } else {
+        customSelectedSpots.push(spot);
+        showToast(`已加入线路第 ${customSelectedSpots.length} 站：${spot.shortName}`, 'success');
+      }
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+    }
+
+    // Add Beijing Start Point
+    function addBeijingStart() {
+      if (customSelectedSpots.length > 0 && customSelectedSpots[0].id === 0) {
+        showToast('起点已是北京', 'info');
+        return;
+      }
+      customSelectedSpots.unshift(BEIJING_NODE);
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+      showToast('已添加北京为自驾起点！', 'success');
+    }
+
+    // Append Beijing to close loop
+    function closeLoopToBeijing() {
+      if (customSelectedSpots.length < 2) {
+        showToast('请先选择至少 2 个途经景点再闭环返京', 'warn');
+        return;
+      }
+      const last = customSelectedSpots[customSelectedSpots.length - 1];
+      if (last.id === 0) {
+        showToast('终点已经是北京，已成闭环！', 'info');
+        return;
+      }
+      customSelectedSpots.push({
+        ...BEIJING_NODE,
+        fullName: "北京（闭环终点返京）",
+        shortName: "北京（终点）"
+      });
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+      showToast('🎉 恭喜！已完成闭环返京设计！', 'success');
+    }
+
+    // Undo last custom spot
+    function undoLastCustomSpot() {
+      if (customSelectedSpots.length === 0) return;
+      const removed = customSelectedSpots.pop();
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+      showToast(`已撤销：${removed.shortName}`, 'info');
+    }
+
+    // Clear all custom spots
+    function clearCustomRoute() {
+      if (!confirm('确定清空当前绘制的自定义线路吗？')) return;
+      customSelectedSpots = [];
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+      showToast('已清空自定义线路', 'info');
+    }
+
+    // Load Starter Template
+    function loadCustomTemplate() {
+      customSelectedSpots = [
+        BEIJING_NODE,
+        SCENIC_SPOTS_DATA.find(s => s.id === 2), // 金山岭·古北水镇
+        SCENIC_SPOTS_DATA.find(s => s.id === 1), // 避暑山庄
+        SCENIC_SPOTS_DATA.find(s => s.id === 4), // 塞罕坝
+        SCENIC_SPOTS_DATA.find(s => s.id === 14), // 乌兰布统
+        SCENIC_SPOTS_DATA.find(s => s.id === 15), // 阿斯哈图石林
+        SCENIC_SPOTS_DATA.find(s => s.id === 8),  // 盘锦红海滩
+        SCENIC_SPOTS_DATA.find(s => s.id === 3),  // 山海关·老龙头
+        { ...BEIJING_NODE, fullName: "北京（闭环返京）", shortName: "北京（终点）" }
+      ];
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+      showToast('已载入“燕山-塞罕坝-乌兰布统-辽西海滨”经典9站模板', 'success');
+    }
+
+    // Calculate real-world driving distance approximation (Haversine * 1.25 highway curvature)
+    function calculateTotalKm(spots) {
+      if (spots.length < 2) return 0;
+      let totalMeters = 0;
+      for (let i = 0; i < spots.length - 1; i++) {
+        const p1 = L.latLng(spots[i].coords);
+        const p2 = L.latLng(spots[i + 1].coords);
+        totalMeters += p1.distanceTo(p2);
+      }
+      return Math.round((totalMeters / 1000) * 1.25);
+    }
+
+    // Update map graphics for Custom Route
+    function updateCustomRouteDisplay() {
+      const latlngs = customSelectedSpots.map(s => s.coords);
+      customRoutePolyline.setLatLngs(latlngs);
+      customMarkersGroup.clearLayers();
+
+      // Highlight/unhighlight subtle spot dots
+      SCENIC_SPOTS_DATA.forEach(s => {
+        const el = document.getElementById(`subtle-marker-${s.id}`);
+        if (el) {
+          const isSelected = customSelectedSpots.some(cs => cs.id === s.id);
+          if (isSelected) {
+            el.classList.add('in-custom-route');
+          } else {
+            el.classList.remove('in-custom-route');
+          }
+        }
+      });
+
+      // Add Numbered Markers for each spot in custom sequence
+      customSelectedSpots.forEach((spot, idx) => {
+        const isStart = idx === 0;
+        const isEnd = idx === customSelectedSpots.length - 1 && customSelectedSpots.length > 1;
+        const badgeLabel = isStart ? '起' : isEnd && spot.id === 0 ? '终' : `${idx + 1}`;
+        const markerBg = isStart ? '#10b981' : isEnd && spot.id === 0 ? '#ef4444' : '#7c3aed';
+
+        const html = `
+          <div class="custom-waypoint-marker ${isStart || isEnd ? 'pulse-dot' : ''}" style="background: ${markerBg}; color: #ffffff; width: 26px; height: 26px; border: 2px solid #ffffff; font-size: 11px; box-shadow: 0 4px 10px rgba(124, 58, 237, 0.4);">
+            ${badgeLabel}
+          </div>
+        `;
+
+        const icon = L.divIcon({
+          html: html,
+          className: '',
+          iconSize: [26, 26],
+          iconAnchor: [13, 13]
+        });
+
+        const marker = L.marker(spot.coords, { icon: icon });
+        const popupContent = `
+          <div class="space-y-1.5 min-w-[200px]">
+            <div class="flex items-center justify-between border-b border-purple-100 pb-1">
+              <span class="font-bold text-xs text-purple-900">第 ${idx + 1} 站 · ${spot.shortName}</span>
+              <span class="text-[10px] bg-purple-100 px-1.5 py-0.5 rounded text-purple-700 font-mono">${spot.province}</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-snug">
+              ${spot.landscapeType}
+            </div>
+            <div class="text-[10px] text-slate-500 bg-purple-50/50 p-1.5 rounded border border-purple-100/60 leading-relaxed">
+              💡 ${spot.desc}
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+        customMarkersGroup.addLayer(marker);
+      });
+
+      // Update Custom Stat Tag
+      const totalKm = calculateTotalKm(customSelectedSpots);
+      const estDays = Math.max(1, Math.round(customSelectedSpots.length * 1.1));
+      const statTag = document.getElementById('customStatTag');
+      if (statTag) {
+        statTag.textContent = `${customSelectedSpots.length} 站 · 约 ${totalKm} km · 预估 ${estDays} 天`;
+      }
+
+      // Auto fit bounds if points exist
+      if (customSelectedSpots.length > 0) {
+        const pad = isMobile() ? [25, 25] : [45, 45];
+        map.fitBounds(customRoutePolyline.getBounds().pad(0.15), { padding: pad, maxZoom: 10 });
+      }
+    }
+
+    // Render Custom Route Sidebar List
+    function renderCustomRouteSidebar() {
+      const container = document.getElementById('itineraryList');
+      container.innerHTML = '';
+
+      if (customSelectedSpots.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 px-4 space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mx-auto shadow-inner">
+              <i data-lucide="pencil-line" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-bold text-sm text-slate-800">尚未选择任何景点</h3>
+            <p class="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+              点击地图上的任意景点圆点即可顺次连线，或点击下方按钮加入北京起点。
+            </p>
+            <button onclick="addBeijingStart()" class="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold shadow-sm hover:bg-purple-700 transition">
+              + 添加北京起点启程
+            </button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      // 1. Current Selected Sequence
+      const seqSection = document.createElement('div');
+      seqSection.className = 'space-y-2 mb-4';
+      
+      const seqHeader = document.createElement('div');
+      seqHeader.className = 'flex items-center justify-between text-xs font-bold text-purple-950 px-1';
+      seqHeader.innerHTML = `
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="route" class="w-4 h-4 text-purple-600"></i>
+          <span>已规划行程节点 (${customSelectedSpots.length} 站)</span>
+        </span>
+        <span class="text-[10px] text-purple-600 font-normal">支持上下调序与删除</span>
+      `;
+      seqSection.appendChild(seqHeader);
+
+      customSelectedSpots.forEach((spot, idx) => {
+        const isStart = idx === 0;
+        const isEnd = idx === customSelectedSpots.length - 1 && customSelectedSpots.length > 1;
+        const nodeBadgeBg = isStart ? 'bg-emerald-500' : isEnd && spot.id === 0 ? 'bg-rose-500' : 'bg-purple-600';
+        const nodeLabel = isStart ? '起' : isEnd && spot.id === 0 ? '终' : `${idx + 1}`;
+
+        // Distance from previous
+        let distText = '出发点';
+        if (idx > 0) {
+          const p1 = L.latLng(customSelectedSpots[idx - 1].coords);
+          const p2 = L.latLng(spot.coords);
+          const segKm = Math.round((p1.distanceTo(p2) / 1000) * 1.25);
+          distText = `距前站 ~${segKm} km`;
+        }
+
+        const item = document.createElement('div');
+        item.className = 'group p-2.5 rounded-xl border border-purple-200/80 bg-white hover:border-purple-300 shadow-xs transition flex items-center justify-between gap-2';
+        item.innerHTML = `
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="w-6 h-6 rounded-full ${nodeBadgeBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+              ${nodeLabel}
+            </span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <h4 class="font-bold text-xs text-slate-900 truncate">${spot.shortName}</h4>
+                <span class="text-[9px] px-1 py-0.2 rounded bg-purple-50 text-purple-700 font-mono shrink-0">${spot.province}</span>
+              </div>
+              <div class="text-[10px] text-slate-500 truncate mt-0.5">${distText} · ${spot.landscapeType}</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1 shrink-0">
+            ${idx > 0 ? `<button onclick="moveCustomSpot(${idx}, -1)" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-700" title="上移一位"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i></button>` : ''}
+            ${idx < customSelectedSpots.length - 1 ? `<button onclick="moveCustomSpot(${idx}, 1)" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-700" title="下移一位"><i data-lucide="arrow-down" class="w-3.5 h-3.5"></i></button>` : ''}
+            <button onclick="removeCustomSpotByIndex(${idx})" class="p-1 hover:bg-rose-50 rounded text-slate-400 hover:text-rose-600" title="删除该站点"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+          </div>
+        `;
+
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('button')) return;
+          map.flyTo(spot.coords, 9, { duration: 1 });
+        });
+
+        seqSection.appendChild(item);
+      });
+      container.appendChild(seqSection);
+
+      // 2. Unselected Scenic Spots Pool
+      const poolSection = document.createElement('div');
+      poolSection.className = 'pt-3 border-t border-slate-200 space-y-2';
+      
+      const unselected = SCENIC_SPOTS_DATA.filter(s => !customSelectedSpots.some(cs => cs.id === s.id));
+      poolSection.innerHTML = `
+        <div class="flex items-center justify-between text-xs font-bold text-slate-700 px-1">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-purple-600"></i>
+            <span>备选景区库 (${unselected.length} 个未加入)</span>
+          </span>
+          <span class="text-[10px] text-slate-400">点击 + 即可加入连线</span>
+        </div>
+        <div class="grid grid-cols-1 gap-1.5">
+          ${unselected.map(s => `
+            <div class="p-2 rounded-xl border border-slate-200 bg-white hover:bg-purple-50/60 hover:border-purple-200 transition flex items-center justify-between gap-2 shadow-xs group">
+              <div class="min-w-0 cursor-pointer flex-1" onclick="previewAndFlyTo([${s.coords}])">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-xs text-slate-800 group-hover:text-purple-900 truncate">${s.shortName}</span>
+                  <span class="text-[9px] px-1 py-0.2 rounded bg-slate-100 text-slate-600 font-mono shrink-0">${s.province}</span>
+                </div>
+                <div class="text-[10px] text-slate-500 truncate mt-0.5">${s.landscapeType}</div>
+              </div>
+              <button onclick="addSpotToCustomById(${s.id})" class="px-2 py-1 rounded-lg bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white text-xs font-bold transition flex items-center gap-0.5 shrink-0 border border-purple-200">
+                <i data-lucide="plus" class="w-3 h-3"></i>
+                <span>加入</span>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      container.appendChild(poolSection);
+
+      lucide.createIcons();
+    }
+
+    function previewAndFlyTo(coords) {
+      map.flyTo(coords, 9, { duration: 1.2 });
+    }
+
+    function addSpotToCustomById(id) {
+      const spot = SCENIC_SPOTS_DATA.find(s => s.id === id);
+      if (spot) {
+        customSelectedSpots.push(spot);
+        updateCustomRouteDisplay();
+        renderCustomRouteSidebar();
+        showToast(`已加入线路：${spot.shortName}`, 'success');
+      }
+    }
+
+    function removeCustomSpotByIndex(index) {
+      const removed = customSelectedSpots.splice(index, 1);
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+      if (removed[0]) showToast(`已移除：${removed[0].shortName}`, 'info');
+    }
+
+    function moveCustomSpot(index, direction) {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= customSelectedSpots.length) return;
+      const temp = customSelectedSpots[index];
+      customSelectedSpots[index] = customSelectedSpots[targetIndex];
+      customSelectedSpots[targetIndex] = temp;
+      updateCustomRouteDisplay();
+      renderCustomRouteSidebar();
+    }
+
+    // Export & Copy Custom Itinerary
+    function copyCustomItinerary() {
+      if (customSelectedSpots.length === 0) {
+        showToast('当前尚未选择任何站点', 'warn');
+        return;
+      }
+      const totalKm = calculateTotalKm(customSelectedSpots);
+      const estDays = Math.max(1, Math.round(customSelectedSpots.length * 1.1));
+      
+      let text = `🚗【2026 北京出发自驾大环线 · 我的自定义路书】\n`;
+      text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `📍 总站数：${customSelectedSpots.length} 站\n`;
+      text += `📏 预估总里程：约 ${totalKm} km\n`;
+      text += `⏱️ 建议游玩时间：约 ${estDays} 天\n\n`;
+      text += `🗺️ 详细途径节点：\n`;
+
+      customSelectedSpots.forEach((s, i) => {
+        let segText = "";
+        if (i > 0) {
+          const p1 = L.latLng(customSelectedSpots[i - 1].coords);
+          const p2 = L.latLng(s.coords);
+          const segKm = Math.round((p1.distanceTo(p2) / 1000) * 1.25);
+          segText = ` (距前站 ~${segKm} km)`;
+        }
+        text += `第 ${i + 1} 站: [${s.province}] ${s.fullName}${segText}\n   风景特色: ${s.landscapeType} · ${s.subSpots}\n`;
+      });
+
+      text += `\n━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `🔗 在线数字化路书: https://leon7786.github.io/20260905-travel-beiing/\n`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('路书方案已复制到剪贴板！可直接粘贴至微信或备忘录', 'success');
+      }).catch(() => {
+        showToast('复制失败，请手动选择复制', 'warn');
+      });
+    }
+
     // Compare All Routes
     function compareAllRoutes() {
       stopAnimation();
       isCompareMode = true;
+      isCustomMode = false;
+
+      // Hide custom UI panels
+      document.getElementById('customRoutePanel').classList.add('hidden');
+      document.getElementById('routeSummaryCard').classList.remove('hidden');
+      document.getElementById('normalActionTools').classList.remove('hidden');
+      document.getElementById('customModeHud').classList.add('hidden');
+      customRoutePolyline.setLatLngs([]);
+      customMarkersGroup.clearLayers();
 
       document.querySelectorAll('.route-tab').forEach(tab => {
-        tab.className = 'route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900';
+        tab.className = 'route-tab px-1 py-1.5 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900';
       });
 
       const compBtn = document.getElementById('compareAllBtn');
@@ -839,7 +1761,7 @@
       document.getElementById('statSpots').textContent = "40+ 处";
       document.getElementById('statProvinces').textContent = "6 省市";
 
-      // Add all layers
+      // Add all preset layers
       const allBounds = L.latLngBounds([]);
       Object.keys(ROUTES_DATA).forEach(id => {
         routeLayers[id].addTo(map);
@@ -878,7 +1800,7 @@
       lucide.createIcons();
     }
 
-    // Render Itinerary Items
+    // Render Preset Itinerary Items
     function renderItineraryList(route) {
       const container = document.getElementById('itineraryList');
       container.innerHTML = '';
@@ -920,7 +1842,6 @@
 
           highlightSidebarDay(d.day);
 
-          // If on mobile drawer, close drawer so user sees the map
           if (isMobile()) {
             closeMobileDrawer();
           }
@@ -944,9 +1865,9 @@
       }
     }
 
-    // Animation: Play Tour along the route
+    // Animation: Play Tour along preset route
     function startAnimation() {
-      if (isCompareMode) selectRoute(1);
+      if (isCompareMode || isCustomMode) selectRoute(1);
       const route = ROUTES_DATA[currentRouteId];
       const markers = markerLayers[currentRouteId].getLayers();
 
@@ -1043,7 +1964,6 @@
       const mobileLabel = document.getElementById('mobileTileLabel');
       if (mobileLabel) mobileLabel.textContent = labelMap[type] || '底图';
 
-      // Hide mobile menu if open
       const menu = document.getElementById('mobileTileMenu');
       if (menu) menu.classList.add('hidden');
     }
@@ -1053,6 +1973,21 @@
       query = (query || '').trim().toLowerCase();
       if (!query) return;
 
+      // 1. Search in 20 scenic spots
+      const matchedSpot = SCENIC_SPOTS_DATA.find(s => 
+        s.fullName.toLowerCase().includes(query) || 
+        s.shortName.toLowerCase().includes(query) ||
+        s.subSpots.toLowerCase().includes(query) ||
+        s.province.toLowerCase().includes(query)
+      );
+
+      if (matchedSpot) {
+        map.flyTo(matchedSpot.coords, 10, { duration: 1.2 });
+        showToast(`已定位：${matchedSpot.shortName}`, 'info');
+        return;
+      }
+
+      // 2. Search in preset route days
       let found = false;
       const currentRoute = ROUTES_DATA[currentRouteId];
       currentRoute.days.forEach((d, idx) => {
@@ -1088,7 +2023,20 @@
       document.getElementById('tabRoute1').addEventListener('click', () => selectRoute(1));
       document.getElementById('tabRoute2').addEventListener('click', () => selectRoute(2));
       document.getElementById('tabRoute3').addEventListener('click', () => selectRoute(3));
+      document.getElementById('tabRouteCustom').addEventListener('click', selectCustomRouteMode);
       document.getElementById('compareAllBtn').addEventListener('click', compareAllRoutes);
+
+      // Subtle Spots Toggle
+      const toggleBtn = document.getElementById('toggleSubtleSpotsBtn');
+      if (toggleBtn) toggleBtn.addEventListener('click', toggleSubtleSpotsVisibility);
+
+      // Custom DIY Route Action Buttons
+      document.getElementById('addBeijingBtn').addEventListener('click', addBeijingStart);
+      document.getElementById('closeLoopBtn').addEventListener('click', closeLoopToBeijing);
+      document.getElementById('undoCustomBtn').addEventListener('click', undoLastCustomSpot);
+      document.getElementById('loadTemplateBtn').addEventListener('click', loadCustomTemplate);
+      document.getElementById('copyCustomItineraryBtn').addEventListener('click', copyCustomItinerary);
+      document.getElementById('clearCustomBtn').addEventListener('click', clearCustomRoute);
 
       // Play / Pause Animation
       document.getElementById('playAnimationBtn').addEventListener('click', () => {
@@ -1103,7 +2051,11 @@
       // Fit Route
       document.getElementById('fitRouteBtn').addEventListener('click', () => {
         const pad = isMobile() ? [20, 20] : [40, 40];
-        if (isCompareMode) {
+        if (isCustomMode) {
+          if (customSelectedSpots.length > 0) {
+            map.fitBounds(customRoutePolyline.getBounds().pad(0.1), { padding: pad });
+          }
+        } else if (isCompareMode) {
           const allBounds = L.latLngBounds([]);
           Object.keys(ROUTES_DATA).forEach(id => allBounds.extend(routeLayers[id].getBounds()));
           map.fitBounds(allBounds, { padding: pad });
@@ -1169,13 +2121,27 @@
       initMap();
       setupEventListeners();
 
-      // Check URL search parameter e.g. ?spot=xxx
+      // Check URL search parameter e.g. ?mode=custom or ?spot=xxx
       const params = new URLSearchParams(window.location.search);
+      const modeParam = params.get('mode');
       const spotParam = params.get('spot');
+      const addSpotParam = params.get('addSpot');
+
+      if (modeParam === 'custom') {
+        selectCustomRouteMode();
+      }
+
+      if (addSpotParam) {
+        selectCustomRouteMode();
+        setTimeout(() => {
+          addSpotToCustomById(parseInt(addSpotParam));
+        }, 300);
+      }
+
       if (spotParam) {
         setTimeout(() => {
           handleSearch(spotParam);
-        }, 500);
+        }, 600);
       }
     });
   </script>
