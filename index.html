@@ -9,16 +9,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
             brand: {
-              50: '#ecfeff',
-              100: '#cffafe',
-              400: '#22d3ee',
-              500: '#06b6d4',
-              600: '#0891b2',
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
             }
           }
         }
@@ -40,41 +39,41 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
+      background: #f1f5f9;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(71, 85, 105, 0.8);
+      background: #cbd5e1;
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(100, 116, 139, 1);
+      background: #94a3b8;
     }
 
     #map {
       width: 100%;
       height: 100%;
       z-index: 10;
-      background: #0b0f19;
+      background: #f8fafc;
     }
 
     .leaflet-container {
       font-family: inherit;
     }
 
-    /* Route Polyline Glow effects */
+    /* Route Polyline Glow effects for Light Theme */
     .route-path-r1 {
-      filter: drop-shadow(0 0 6px #06b6d4);
-      stroke-dasharray: 10, 8;
+      filter: drop-shadow(0 2px 5px rgba(2, 132, 199, 0.45));
+      stroke-dasharray: 10, 7;
       animation: dashMove 30s linear infinite;
     }
     .route-path-r2 {
-      filter: drop-shadow(0 0 6px #10b981);
-      stroke-dasharray: 10, 8;
+      filter: drop-shadow(0 2px 5px rgba(5, 150, 105, 0.45));
+      stroke-dasharray: 10, 7;
       animation: dashMove 30s linear infinite;
     }
     .route-path-r3 {
-      filter: drop-shadow(0 0 6px #f59e0b);
-      stroke-dasharray: 10, 8;
+      filter: drop-shadow(0 2px 5px rgba(217, 119, 6, 0.45));
+      stroke-dasharray: 10, 7;
       animation: dashMove 30s linear infinite;
     }
 
@@ -84,7 +83,7 @@
       }
     }
 
-    /* Marker Pulse */
+    /* Marker Styling */
     .custom-waypoint-marker {
       display: flex;
       align-items: center;
@@ -92,13 +91,14 @@
       border-radius: 9999px;
       font-weight: 700;
       font-size: 11px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
     }
     .custom-waypoint-marker:hover {
-      transform: scale(1.3);
+      transform: scale(1.35);
       z-index: 999 !important;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
     }
     
     .pulse-dot::after {
@@ -109,42 +109,43 @@
       border-radius: 9999px;
       animation: pulseAnim 2s infinite ease-out;
       opacity: 0.7;
+      background: inherit;
     }
     @keyframes pulseAnim {
-      0% { transform: scale(1); opacity: 0.8; }
+      0% { transform: scale(1); opacity: 0.7; }
       100% { transform: scale(2.2); opacity: 0; }
     }
 
-    /* Custom Popup Styling */
+    /* Custom Popup Styling - Light Mode */
     .leaflet-popup-content-wrapper {
-      background: rgba(15, 23, 42, 0.95) !important;
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #ffffff !important;
+      backdrop-filter: blur(8px);
+      border: 1px solid #e2e8f0;
       border-radius: 14px !important;
-      color: #f8fafc !important;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      color: #0f172a !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
       padding: 4px;
     }
     .leaflet-popup-tip {
-      background: rgba(15, 23, 42, 0.95) !important;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden flex flex-col font-sans select-none antialiased">
+<body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col font-sans select-none antialiased">
 
-  <!-- Top Navigation Bar -->
-  <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800/80 px-4 md:px-6 flex items-center justify-between shrink-0 z-30 shadow-lg">
+  <!-- Top Navigation Bar (Light) -->
+  <header class="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 md:px-6 flex items-center justify-between shrink-0 z-30 shadow-sm">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-slate-950">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center shadow-md shadow-sky-500/20 text-white">
         <i data-lucide="map-pin" class="w-5 h-5"></i>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="font-bold text-base md:text-lg text-white tracking-wide">北京出发 · 北境自驾大环线</h1>
-          <span class="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Digital Map</span>
+          <h1 class="font-bold text-base md:text-lg text-slate-900 tracking-wide">北京出发 · 北境自驾大环线</h1>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">浅色数字化地图</span>
         </div>
-        <p class="text-xs text-slate-400 hidden sm:block">多路线数字化智能比选 · 燕山长城 / 草原石林 / 辽东山海 / 齐鲁华夏</p>
+        <p class="text-xs text-slate-500 hidden sm:block">多路线智能交互比选 · 燕山长城 / 草原石林 / 辽东山海 / 齐鲁华夏</p>
       </div>
     </div>
 
@@ -156,25 +157,25 @@
         <input 
           id="spotSearchInput"
           type="text" 
-          placeholder="快速搜索景点或城市..." 
-          class="w-full bg-slate-800/80 border border-slate-700/80 text-xs rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+          placeholder="搜索景点、城市或途经点..." 
+          class="w-full bg-slate-50 border border-slate-200 text-xs rounded-lg pl-9 pr-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition"
         />
       </div>
 
       <!-- Tile Layer Switcher -->
-      <div class="flex bg-slate-800/80 p-1 rounded-lg border border-slate-700/70 text-xs">
-        <button id="tileDarkBtn" class="px-2.5 py-1 rounded font-medium bg-cyan-500 text-slate-950 transition shadow">科技暗色</button>
-        <button id="tileSatBtn" class="px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white transition">高清卫星</button>
-        <button id="tileLightBtn" class="px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white transition">清新浅色</button>
+      <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
+        <button id="tileLightBtn" class="px-2.5 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition">清新浅色</button>
+        <button id="tileSatBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">高清卫星</button>
+        <button id="tileDarkBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">极客暗色</button>
       </div>
 
       <!-- Toggle Sidebar Button (Mobile) -->
-      <button id="toggleSidebarBtn" class="md:hidden p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 hover:text-white">
+      <button id="toggleSidebarBtn" class="md:hidden p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-slate-900 shadow-sm">
         <i data-lucide="list" class="w-5 h-5"></i>
       </button>
 
       <!-- GitHub Link -->
-      <a href="https://github.com/leon7786/20260905-travel-beiing" target="_blank" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition" title="查看 GitHub 仓库">
+      <a href="https://github.com/leon7786/20260905-travel-beiing" target="_blank" class="p-2 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 transition shadow-sm" title="查看 GitHub 仓库">
         <i data-lucide="github" class="w-5 h-5"></i>
       </a>
     </div>
@@ -183,73 +184,73 @@
   <!-- Main Container -->
   <div class="flex-1 flex relative overflow-hidden">
 
-    <!-- Interactive Sidebar -->
-    <aside id="sidebarPanel" class="absolute md:static inset-y-0 left-0 z-20 w-80 md:w-96 bg-slate-900/95 md:bg-slate-900/90 backdrop-blur-md border-r border-slate-800 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none">
+    <!-- Interactive Sidebar (Light) -->
+    <aside id="sidebarPanel" class="absolute md:static inset-y-0 left-0 z-20 w-80 md:w-96 bg-white/95 md:bg-white backdrop-blur-md border-r border-slate-200 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
       
       <!-- Route Selector Header -->
-      <div class="p-4 border-b border-slate-800 shrink-0 space-y-3">
+      <div class="p-4 border-b border-slate-200 shrink-0 space-y-3 bg-white">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">选择规划路线</span>
-          <button id="compareAllBtn" class="text-xs px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition flex items-center gap-1 font-medium">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">选择规划路线</span>
+          <button id="compareAllBtn" class="text-xs px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1 font-semibold shadow-sm">
             <i data-lucide="layers" class="w-3.5 h-3.5"></i>
             多路线全景对比
           </button>
         </div>
 
         <!-- Route Tabs -->
-        <div class="grid grid-cols-3 gap-1.5 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80 text-xs">
-          <button id="tabRoute1" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 bg-cyan-500 text-slate-950 shadow-md">
-            <span class="font-bold">方案一</span>
-            <span class="text-[10px] opacity-80">15天·山海边境</span>
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          <button id="tabRoute1" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 bg-white text-sky-700 shadow-sm font-bold border border-sky-100">
+            <span>方案一</span>
+            <span class="text-[10px] opacity-90 font-normal">15天·山海边境</span>
           </button>
-          <button id="tabRoute2" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-            <span class="font-bold">方案二</span>
-            <span class="text-[10px] opacity-80">16天·草原石林</span>
+          <button id="tabRoute2" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900">
+            <span>方案二</span>
+            <span class="text-[10px] opacity-90 font-normal">16天·草原石林</span>
           </button>
-          <button id="tabRoute3" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
-            <span class="font-bold">方案三</span>
-            <span class="text-[10px] opacity-80">15天·名山大环</span>
+          <button id="tabRoute3" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900">
+            <span>方案三</span>
+            <span class="text-[10px] opacity-90 font-normal">15天·名山大环</span>
           </button>
         </div>
 
-        <!-- Current Route Summary Card -->
-        <div id="routeSummaryCard" class="bg-gradient-to-br from-slate-800/80 to-slate-900/90 border border-slate-700/60 rounded-xl p-3 shadow-inner">
+        <!-- Current Route Summary Card (Light Card) -->
+        <div id="routeSummaryCard" class="bg-slate-50/90 border border-slate-200/90 rounded-xl p-3.5 shadow-sm">
           <div class="flex items-center justify-between mb-1.5">
-            <h2 id="currentRouteTitle" class="font-bold text-sm text-cyan-300">方案一：15天 关外山海与边境线</h2>
-            <span id="currentRouteTag" class="text-[10px] px-2 py-0.5 rounded font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">约 2,000 km</span>
+            <h2 id="currentRouteTitle" class="font-bold text-sm text-sky-800">方案一：15天 关外山海与边境线</h2>
+            <span id="currentRouteTag" class="text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-sky-100 text-sky-800 border border-sky-200">约 2,000 km</span>
           </div>
-          <p id="currentRouteDesc" class="text-xs text-slate-300 leading-relaxed line-clamp-2">
+          <p id="currentRouteDesc" class="text-xs text-slate-600 leading-relaxed line-clamp-2">
             串联金山岭、承德避暑山庄、红海滩、千山、本溪水洞、丹东鸭绿江与沈阳故宫，节奏舒缓，兼收边境风貌与滨海风光。
           </p>
 
           <!-- Key Metrics Grid -->
-          <div class="grid grid-cols-4 gap-2 mt-3 pt-2.5 border-t border-slate-700/50 text-center">
+          <div class="grid grid-cols-4 gap-2 mt-3 pt-2.5 border-t border-slate-200 text-center">
             <div>
-              <div class="text-[10px] text-slate-400">总天数</div>
-              <div id="statDays" class="text-xs font-bold text-white mt-0.5">15 天</div>
+              <div class="text-[10px] text-slate-500 font-medium">总天数</div>
+              <div id="statDays" class="text-xs font-bold text-slate-900 mt-0.5">15 天</div>
             </div>
             <div>
-              <div class="text-[10px] text-slate-400">总里程</div>
-              <div id="statKm" class="text-xs font-bold text-white mt-0.5">~2000 km</div>
+              <div class="text-[10px] text-slate-500 font-medium">总里程</div>
+              <div id="statKm" class="text-xs font-bold text-slate-900 mt-0.5">~2000 km</div>
             </div>
             <div>
-              <div class="text-[10px] text-slate-400">核心景区</div>
-              <div id="statSpots" class="text-xs font-bold text-white mt-0.5">18 处</div>
+              <div class="text-[10px] text-slate-500 font-medium">核心景区</div>
+              <div id="statSpots" class="text-xs font-bold text-slate-900 mt-0.5">18 处</div>
             </div>
             <div>
-              <div class="text-[10px] text-slate-400">途经省市</div>
-              <div id="statProvinces" class="text-xs font-bold text-white mt-0.5">4 省市</div>
+              <div class="text-[10px] text-slate-500 font-medium">途经省市</div>
+              <div id="statProvinces" class="text-xs font-bold text-slate-900 mt-0.5">4 省市</div>
             </div>
           </div>
         </div>
 
         <!-- Action Tools (Play animation / Fit Bounds) -->
         <div class="flex items-center gap-2">
-          <button id="playAnimationBtn" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600/30 transition flex items-center justify-center gap-1.5 text-xs font-semibold">
-            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          <button id="playAnimationBtn" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition flex items-center justify-center gap-1.5 text-xs font-semibold shadow-sm">
+            <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-600"></i>
             <span>漫游轨迹回放</span>
           </button>
-          <button id="fitRouteBtn" class="py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center gap-1.5 text-xs">
+          <button id="fitRouteBtn" class="py-1.5 px-3 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 transition flex items-center justify-center gap-1.5 text-xs font-medium shadow-sm">
             <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
             <span>全景居中</span>
           </button>
@@ -257,7 +258,7 @@
       </div>
 
       <!-- Itinerary Day-by-Day List -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-2.5" id="itineraryList">
+      <div class="flex-1 overflow-y-auto p-4 space-y-2.5 bg-slate-50/50" id="itineraryList">
         <!-- Dynamically injected itinerary items -->
       </div>
     </aside>
@@ -266,39 +267,39 @@
     <main class="flex-1 relative h-full">
       <div id="map"></div>
 
-      <!-- Floating Legend Overlay -->
-      <div class="absolute bottom-6 right-6 z-20 bg-slate-900/90 backdrop-blur-md border border-slate-800 p-3.5 rounded-xl shadow-2xl text-xs space-y-2 max-w-xs pointer-events-auto">
-        <div class="flex items-center justify-between font-bold text-slate-300 border-b border-slate-800 pb-1.5">
+      <!-- Floating Legend Overlay (Light) -->
+      <div class="absolute bottom-6 right-6 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 p-3.5 rounded-xl shadow-xl text-xs space-y-2 max-w-xs pointer-events-auto">
+        <div class="flex items-center justify-between font-bold text-slate-800 border-b border-slate-100 pb-1.5">
           <span>图例与路线标识</span>
-          <i data-lucide="compass" class="w-4 h-4 text-cyan-400"></i>
+          <i data-lucide="compass" class="w-4 h-4 text-sky-600"></i>
         </div>
         <div class="space-y-1.5">
-          <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="selectRoute(1)">
-            <span class="w-3.5 h-3.5 rounded-full bg-cyan-500 shadow-sm shadow-cyan-500/50 inline-block"></span>
-            <span class="text-slate-300">方案一：15天 关外山海与边境线</span>
+          <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition" onclick="selectRoute(1)">
+            <span class="w-3.5 h-3.5 rounded-full bg-sky-600 shadow-sm inline-block"></span>
+            <span class="text-slate-700 font-medium">方案一：15天 关外山海与边境线</span>
           </div>
-          <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="selectRoute(2)">
-            <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 inline-block"></span>
-            <span class="text-slate-300">方案二：16天 草原森林石林奇观</span>
+          <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition" onclick="selectRoute(2)">
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-600 shadow-sm inline-block"></span>
+            <span class="text-slate-700 font-medium">方案二：16天 草原森林石林奇观</span>
           </div>
-          <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="selectRoute(3)">
-            <span class="w-3.5 h-3.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50 inline-block"></span>
-            <span class="text-slate-300">方案三：15天 关东名胜+华北圣山</span>
+          <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition" onclick="selectRoute(3)">
+            <span class="w-3.5 h-3.5 rounded-full bg-amber-600 shadow-sm inline-block"></span>
+            <span class="text-slate-700 font-medium">方案三：15天 关东名胜+华北圣山</span>
           </div>
         </div>
-        <div class="text-[10px] text-slate-400 pt-1 border-t border-slate-800/80">
+        <div class="text-[11px] text-slate-500 pt-1 border-t border-slate-100">
           点击站点圆标即可展开游玩详情与高亮动线
         </div>
       </div>
 
-      <!-- Floating Speed / Animation HUD (Hidden by default) -->
-      <div id="animHud" class="hidden absolute top-6 left-6 z-20 bg-slate-900/90 backdrop-blur-md border border-cyan-500/40 px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-3">
-        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></div>
+      <!-- Floating Animation HUD (Light) -->
+      <div id="animHud" class="hidden absolute top-6 left-6 z-20 bg-white/95 backdrop-blur-md border border-sky-300 px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></div>
         <div>
-          <div class="text-[10px] text-slate-400">正在播放路线漫游</div>
-          <div id="animHudDay" class="text-xs font-bold text-cyan-300">第 1 天 · 北京 ➔ 密云/滦平</div>
+          <div class="text-[10px] text-slate-500 font-medium">正在播放路线漫游</div>
+          <div id="animHudDay" class="text-xs font-bold text-sky-800">第 1 天 · 北京 ➔ 密云/滦平</div>
         </div>
-        <button id="stopAnimBtn" class="ml-2 text-slate-400 hover:text-white p-1">
+        <button id="stopAnimBtn" class="ml-2 text-slate-400 hover:text-slate-700 p-1">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -309,14 +310,14 @@
     // Lucide Icons initialization
     lucide.createIcons();
 
-    // Route Definitions
+    // Route Definitions (Enhanced for Light Background)
     const ROUTES_DATA = {
       1: {
         id: 1,
         title: "方案一：15天 关外山海与边境线",
         badge: "关外历史 + 辽东边境",
-        color: "#06b6d4",
-        glowColor: "#22d3ee",
+        color: "#0284c7",
+        glowColor: "#38bdf8",
         strokeClass: "route-path-r1",
         desc: "以京承高速启程，沿辽西走廊直抵盘锦与鞍山，深入中朝边境丹东，返程漫游秦皇岛与蓟州盘山，感受山海雄关与关外名胜的完美结合。",
         totalDays: 15,
@@ -345,7 +346,7 @@
         id: 2,
         title: "方案二：16天 草原森林与地质奇观大环线",
         badge: "草原林海 + 冰川石林",
-        color: "#10b981",
+        color: "#059669",
         glowColor: "#34d399",
         strokeClass: "route-path-r2",
         desc: "自然风貌极致多样的梦幻线路！横跨燕山、塞罕坝浩瀚林海、乌兰布统大草原、阿斯哈图冰川石林、辽东千山水洞与太行白石山。",
@@ -376,8 +377,8 @@
         id: 3,
         title: "方案三：15天 关东名胜+华北圣山跨省大环线",
         badge: "文化探寻 + 佛宗五岳",
-        color: "#f59e0b",
-        glowColor: "#fbbf24",
+        color: "#d97706",
+        glowColor: "#f59e0b",
         strokeClass: "route-path-r3",
         desc: "不仅涵盖关外辽沈边境精华，后半段更南切太行与齐鲁大地，朝拜佛教圣地五台山，登顶五岳独尊泰山，文化分量极其厚重。",
         totalDays: 15,
@@ -413,9 +414,9 @@
     let animTimer = null;
     let animStep = 0;
 
-    // Tile Layers
+    // Tile Layers (Default to Light Positron)
     const TILE_SOURCES = {
-      dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         subdomains: 'abcd',
         attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
@@ -424,13 +425,13 @@
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; Earthstar Geographics'
       }),
-      light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         subdomains: 'abcd',
         attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
       })
     };
-    let currentTileLayer = TILE_SOURCES.dark;
+    let currentTileLayer = TILE_SOURCES.light; // Default Light
 
     // Init Map
     function initMap() {
@@ -443,7 +444,7 @@
       // Custom Zoom Control at Bottom Right
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Add Base Layer
+      // Add Light Tile Layer as Default
       currentTileLayer.addTo(map);
 
       // Draw all routes into memory
@@ -459,19 +460,19 @@
     function buildRouteGraphics(route) {
       const latlngs = route.days.map(d => d.coords);
 
-      // Outer glow line
+      // Outer glow line for light map
       const glowLine = L.polyline(latlngs, {
         color: route.color,
-        weight: 8,
-        opacity: 0.35,
+        weight: 9,
+        opacity: 0.25,
         lineCap: 'round',
         lineJoin: 'round'
       });
 
-      // Main inner dashed animated line
+      // Main inner dashed line
       const mainLine = L.polyline(latlngs, {
         color: route.color,
-        weight: 3.5,
+        weight: 4,
         opacity: 0.95,
         className: route.strokeClass,
         lineCap: 'round',
@@ -485,10 +486,10 @@
       const markersGroup = L.featureGroup();
       route.days.forEach((d, idx) => {
         const isStartOrEnd = (idx === 0 || idx === route.days.length - 1);
-        const markerBg = isStartOrEnd ? '#f43f5e' : route.color;
+        const markerBg = isStartOrEnd ? '#ef4444' : route.color;
         
         const html = `
-          <div class="custom-waypoint-marker ${isStartOrEnd ? 'pulse-dot' : ''}" style="background: ${markerBg}; color: #0b0f19; width: ${isStartOrEnd ? '28px' : '22px'}; height: ${isStartOrEnd ? '28px' : '22px'}; border: 2px solid #ffffff;">
+          <div class="custom-waypoint-marker ${isStartOrEnd ? 'pulse-dot' : ''}" style="background: ${markerBg}; color: #ffffff; width: ${isStartOrEnd ? '30px' : '24px'}; height: ${isStartOrEnd ? '30px' : '24px'}; border: 2px solid #ffffff;">
             ${d.day}
           </div>
         `;
@@ -496,24 +497,24 @@
         const icon = L.divIcon({
           html: html,
           className: '',
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
         });
 
         const marker = L.marker(d.coords, { icon: icon });
 
-        // Popup Content
+        // Popup Content (Light Theme)
         const popupHtml = `
           <div class="p-2 space-y-1.5 min-w-[220px]">
-            <div class="flex items-center justify-between border-b border-slate-700/80 pb-1">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-1">
               <span class="font-bold text-sm" style="color: ${route.color}">${d.day} · ${d.node}</span>
-              <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">${d.distance}</span>
+              <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">${d.distance}</span>
             </div>
-            <div class="text-xs font-medium text-slate-100">
+            <div class="text-xs font-semibold text-slate-800">
               <i class="inline-block w-2 h-2 rounded-full mr-1" style="background: ${route.color}"></i>
               ${d.spots}
             </div>
-            <div class="text-[11px] text-slate-400 bg-slate-900/60 p-1.5 rounded border border-slate-800/80 leading-relaxed">
+            <div class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed">
               💡 ${d.tips}
             </div>
           </div>
@@ -541,24 +542,35 @@
       document.querySelectorAll('.route-tab').forEach((tab, index) => {
         const id = index + 1;
         if (id === routeId) {
-          tab.className = `route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 shadow-md`;
-          if (id === 1) tab.classList.add('bg-cyan-500', 'text-slate-950');
-          if (id === 2) tab.classList.add('bg-emerald-500', 'text-slate-950');
-          if (id === 3) tab.classList.add('bg-amber-500', 'text-slate-950');
+          tab.className = `route-tab px-2 py-2 rounded-lg font-bold transition text-center flex flex-col items-center gap-1 shadow-sm bg-white border border-slate-200`;
+          if (id === 1) { tab.classList.add('text-sky-700', 'border-sky-200'); }
+          if (id === 2) { tab.classList.add('text-emerald-700', 'border-emerald-200'); }
+          if (id === 3) { tab.classList.add('text-amber-700', 'border-amber-200'); }
         } else {
-          tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200';
+          tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900';
         }
       });
 
       // Update Compare button styling
       const compBtn = document.getElementById('compareAllBtn');
       compBtn.classList.remove('bg-indigo-600', 'text-white');
-      compBtn.classList.add('bg-indigo-500/20', 'text-indigo-300');
+      compBtn.classList.add('bg-indigo-50', 'text-indigo-700');
 
       // Update Summary Header
-      document.getElementById('currentRouteTitle').textContent = route.title;
-      document.getElementById('currentRouteTitle').style.color = route.color;
-      document.getElementById('currentRouteTag').textContent = `约 ${route.totalKm} km`;
+      const titleEl = document.getElementById('currentRouteTitle');
+      titleEl.textContent = route.title;
+      titleEl.style.color = route.color;
+      
+      const tagEl = document.getElementById('currentRouteTag');
+      tagEl.textContent = `约 ${route.totalKm} km`;
+      if (routeId === 1) {
+        tagEl.className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-sky-100 text-sky-800 border border-sky-200';
+      } else if (routeId === 2) {
+        tagEl.className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200';
+      } else {
+        tagEl.className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-amber-100 text-amber-800 border border-amber-200';
+      }
+
       document.getElementById('currentRouteDesc').textContent = route.desc;
       document.getElementById('statDays').textContent = `${route.totalDays} 天`;
       document.getElementById('statKm').textContent = `~${route.totalKm} km`;
@@ -587,17 +599,18 @@
       isCompareMode = true;
 
       document.querySelectorAll('.route-tab').forEach(tab => {
-        tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200';
+        tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900';
       });
 
       const compBtn = document.getElementById('compareAllBtn');
       compBtn.classList.add('bg-indigo-600', 'text-white');
-      compBtn.classList.remove('bg-indigo-500/20', 'text-indigo-300');
+      compBtn.classList.remove('bg-indigo-50', 'text-indigo-700');
 
       document.getElementById('currentRouteTitle').textContent = "全景对比：3大环线同屏纵览";
-      document.getElementById('currentRouteTitle').style.color = "#a5b4fc";
+      document.getElementById('currentRouteTitle').style.color = "#4f46e5";
       document.getElementById('currentRouteTag').textContent = "3条独立方案";
-      document.getElementById('currentRouteDesc').textContent = "青色为方案一（15天山海边境），翠绿为方案二（16天草原石林），金黄为方案三（15天五台泰山名山）。";
+      document.getElementById('currentRouteTag').className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200';
+      document.getElementById('currentRouteDesc').textContent = "蔚蓝为方案一（15天山海边境），青翠为方案二（16天草原石林），暖橙为方案三（15天五台泰山圣山）。";
       document.getElementById('statDays').textContent = "15-16天";
       document.getElementById('statKm').textContent = "2000-2700";
       document.getElementById('statSpots').textContent = "40+ 处";
@@ -620,18 +633,18 @@
           ${[1, 2, 3].map(id => {
             const r = ROUTES_DATA[id];
             return `
-              <div class="p-3.5 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 cursor-pointer transition" onclick="selectRoute(${id})">
+              <div class="p-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition shadow-sm" onclick="selectRoute(${id})">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full" style="background: ${r.color}"></span>
-                    <span class="font-bold text-sm text-slate-100">${r.title}</span>
+                    <span class="font-bold text-sm text-slate-900">${r.title}</span>
                   </div>
                   <span class="text-xs font-mono font-bold" style="color: ${r.color}">~${r.totalKm} km</span>
                 </div>
-                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">${r.desc}</p>
-                <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-300 pt-2 border-t border-slate-700/50">
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${r.desc}</p>
+                <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-600 pt-2 border-t border-slate-100">
                   <span>共 ${r.totalDays} 天 · ${r.spotCount} 景点</span>
-                  <span class="text-indigo-400 font-semibold flex items-center gap-1">点击查看此方案 <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+                  <span class="text-indigo-600 font-semibold flex items-center gap-1">点击查看此方案 <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
                 </div>
               </div>
             `;
@@ -649,25 +662,25 @@
       route.days.forEach((d, index) => {
         const item = document.createElement('div');
         item.id = `itinerary-day-${d.day}`;
-        item.className = 'group p-3 rounded-xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800/90 hover:border-slate-700 cursor-pointer transition duration-200';
+        item.className = 'group p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/90 hover:border-slate-300 cursor-pointer transition duration-150 shadow-sm';
         
         item.innerHTML = `
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold px-2 py-0.5 rounded-md font-mono" style="background: ${route.color}22; color: ${route.color}; border: 1px solid ${route.color}44;">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md font-mono" style="background: ${route.color}15; color: ${route.color}; border: 1px solid ${route.color}35;">
                 ${d.day}
               </span>
-              <h3 class="text-xs font-semibold text-slate-200 group-hover:text-white transition">${d.node}</h3>
+              <h3 class="text-xs font-semibold text-slate-800 group-hover:text-slate-950 transition">${d.node}</h3>
             </div>
-            <span class="text-[10px] font-mono text-slate-400 shrink-0">${d.distance}</span>
+            <span class="text-[10px] font-mono text-slate-500 shrink-0 font-medium">${d.distance}</span>
           </div>
 
-          <div class="mt-1.5 text-xs text-slate-300 flex items-center gap-1.5">
+          <div class="mt-1.5 text-xs text-slate-700 flex items-center gap-1.5">
             <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" style="color: ${route.color}"></i>
-            <span class="truncate">${d.spots}</span>
+            <span class="truncate font-medium">${d.spots}</span>
           </div>
 
-          <div class="mt-2 text-[11px] text-slate-400 bg-slate-900/50 p-2 rounded-lg border border-slate-800/60 leading-relaxed group-hover:text-slate-300 transition">
+          <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed group-hover:text-slate-600 transition">
             💡 ${d.tips}
           </div>
         `;
@@ -693,11 +706,11 @@
     // Highlight day in sidebar
     function highlightSidebarDay(day) {
       document.querySelectorAll('#itineraryList > div').forEach(el => {
-        el.classList.remove('ring-2', 'ring-cyan-400', 'bg-slate-800');
+        el.classList.remove('ring-2', 'ring-sky-500', 'bg-sky-50/50');
       });
       const target = document.getElementById(`itinerary-day-${day}`);
       if (target) {
-        target.classList.add('ring-2', 'ring-cyan-400', 'bg-slate-800');
+        target.classList.add('ring-2', 'ring-sky-500', 'bg-sky-50/50');
         target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
@@ -713,10 +726,10 @@
       hud.classList.remove('hidden');
 
       const playBtn = document.getElementById('playAnimationBtn');
-      playBtn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5"></i> <span>暂停漫游</span>`;
-      playBtn.classList.replace('bg-emerald-600/20', 'bg-amber-600/20');
-      playBtn.classList.replace('text-emerald-300', 'text-amber-300');
-      playBtn.classList.replace('border-emerald-500/40', 'border-amber-500/40');
+      playBtn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5 text-amber-600"></i> <span>暂停漫游</span>`;
+      playBtn.classList.replace('bg-emerald-50', 'bg-amber-50');
+      playBtn.classList.replace('text-emerald-700', 'text-amber-700');
+      playBtn.classList.replace('border-emerald-300', 'border-amber-300');
       lucide.createIcons();
 
       animStep = 0;
@@ -754,10 +767,10 @@
 
       const playBtn = document.getElementById('playAnimationBtn');
       if (playBtn) {
-        playBtn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i> <span>漫游轨迹回放</span>`;
-        playBtn.classList.replace('bg-amber-600/20', 'bg-emerald-600/20');
-        playBtn.classList.replace('text-amber-300', 'text-emerald-300');
-        playBtn.classList.replace('border-amber-500/40', 'border-emerald-500/40');
+        playBtn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5 text-emerald-600"></i> <span>漫游轨迹回放</span>`;
+        playBtn.classList.replace('bg-amber-50', 'bg-emerald-50');
+        playBtn.classList.replace('text-amber-700', 'text-emerald-700');
+        playBtn.classList.replace('border-amber-300', 'border-emerald-300');
         lucide.createIcons();
       }
     }
@@ -799,14 +812,14 @@
 
         ['tileDarkBtn', 'tileSatBtn', 'tileLightBtn'].forEach(id => {
           const b = document.getElementById(id);
-          b.className = 'px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white transition';
+          b.className = 'px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition';
         });
-        btn.className = 'px-2.5 py-1 rounded font-medium bg-cyan-500 text-slate-950 transition shadow';
+        btn.className = 'px-2.5 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition';
       };
 
-      document.getElementById('tileDarkBtn').addEventListener('click', function() { switchTile('dark', this); });
-      document.getElementById('tileSatBtn').addEventListener('click', function() { switchTile('satellite', this); });
       document.getElementById('tileLightBtn').addEventListener('click', function() { switchTile('light', this); });
+      document.getElementById('tileSatBtn').addEventListener('click', function() { switchTile('satellite', this); });
+      document.getElementById('tileDarkBtn').addEventListener('click', function() { switchTile('dark', this); });
 
       // Mobile Sidebar Toggle
       const sidebar = document.getElementById('sidebarPanel');
