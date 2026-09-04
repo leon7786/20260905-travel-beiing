@@ -162,11 +162,12 @@
         />
       </div>
 
-      <!-- Tile Layer Switcher -->
+      <!-- Tile Layer Switcher (No carto.com) -->
       <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-        <button id="tileLightBtn" class="px-2.5 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition">清新浅色</button>
+        <button id="tileAmapBtn" class="px-2.5 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition">高德标准</button>
+        <button id="tileOsmBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">开源OSM</button>
+        <button id="tileEsriGrayBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">极简浅灰</button>
         <button id="tileSatBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">高清卫星</button>
-        <button id="tileDarkBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">极客暗色</button>
       </div>
 
       <!-- Toggle Sidebar Button (Mobile) -->
@@ -414,24 +415,28 @@
     let animTimer = null;
     let animStep = 0;
 
-    // Tile Layers (Default to Light Positron)
+    // Tile Layers (NO CARTO.COM: AutoNavi, OpenStreetMap, Esri Light Gray, Esri Satellite)
     const TILE_SOURCES = {
-      light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      amap: L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+        maxZoom: 18,
+        subdomains: ['1', '2', '3', '4'],
+        attribution: '&copy; 高德地图 (AutoNavi)'
+      }),
+      osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        subdomains: 'abcd',
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+        subdomains: ['a', 'b', 'c'],
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }),
+      esriGray: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16,
+        attribution: '&copy; Esri &mdash; Light Gray Canvas'
       }),
       satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
         attribution: '&copy; Esri &mdash; Earthstar Geographics'
-      }),
-      dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        subdomains: 'abcd',
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
       })
     };
-    let currentTileLayer = TILE_SOURCES.light; // Default Light
+    let currentTileLayer = TILE_SOURCES.amap; // Default to AutoNavi Light Road Map
 
     // Init Map
     function initMap() {
@@ -444,7 +449,7 @@
       // Custom Zoom Control at Bottom Right
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Add Light Tile Layer as Default
+      // Add AutoNavi Light Tile Layer as Default
       currentTileLayer.addTo(map);
 
       // Draw all routes into memory
@@ -804,22 +809,23 @@
         }
       });
 
-      // Tile Switcher
+      // Tile Switcher (AutoNavi, OpenStreetMap, Esri Gray, Esri Satellite)
       const switchTile = (type, btn) => {
         map.removeLayer(currentTileLayer);
         currentTileLayer = TILE_SOURCES[type];
         currentTileLayer.addTo(map);
 
-        ['tileDarkBtn', 'tileSatBtn', 'tileLightBtn'].forEach(id => {
+        ['tileAmapBtn', 'tileOsmBtn', 'tileEsriGrayBtn', 'tileSatBtn'].forEach(id => {
           const b = document.getElementById(id);
           b.className = 'px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition';
         });
         btn.className = 'px-2.5 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition';
       };
 
-      document.getElementById('tileLightBtn').addEventListener('click', function() { switchTile('light', this); });
+      document.getElementById('tileAmapBtn').addEventListener('click', function() { switchTile('amap', this); });
+      document.getElementById('tileOsmBtn').addEventListener('click', function() { switchTile('osm', this); });
+      document.getElementById('tileEsriGrayBtn').addEventListener('click', function() { switchTile('esriGray', this); });
       document.getElementById('tileSatBtn').addEventListener('click', function() { switchTile('satellite', this); });
-      document.getElementById('tileDarkBtn').addEventListener('click', function() { switchTile('dark', this); });
 
       // Mobile Sidebar Toggle
       const sidebar = document.getElementById('sidebarPanel');
