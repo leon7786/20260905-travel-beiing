@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>2026 北京出发自驾大环线 · 数字化中国地图导航</title>
   
   <!-- Tailwind CSS CDN -->
@@ -19,6 +19,14 @@
               600: '#0369a1',
               700: '#075985',
             }
+          },
+          screens: {
+            'xs': '420px',
+            'sm': '640px',
+            'md': '768px',
+            'ipad': '834px',
+            'lg': '1024px',
+            'xl': '1280px',
           }
         }
       }
@@ -33,10 +41,35 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
+    :root {
+      --header-height: 58px;
+      --sidebar-width: 390px;
+    }
+
+    /* Prevent any horizontal overflow */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden !important;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Dynamic viewport height fallback for iOS Safari and modern mobile browsers */
+    .full-viewport-height {
+      height: 100vh;
+      height: 100dvh;
+    }
+
     /* Custom Scrollbars */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
     }
     ::-webkit-scrollbar-track {
       background: #f1f5f9;
@@ -60,19 +93,39 @@
       font-family: inherit;
     }
 
-    /* Route Polyline Glow effects for Light Theme */
+    /* Responsive Leaflet Popup */
+    .leaflet-popup-content-wrapper {
+      background: #ffffff !important;
+      backdrop-filter: blur(8px);
+      border: 1px solid #e2e8f0;
+      border-radius: 12px !important;
+      color: #0f172a !important;
+      box-shadow: 0 16px 24px -4px rgba(0, 0, 0, 0.12), 0 6px 10px -4px rgba(0, 0, 0, 0.08) !important;
+      padding: 2px !important;
+      max-width: calc(100vw - 32px) !important;
+    }
+    .leaflet-popup-content {
+      margin: 8px 12px !important;
+      line-height: 1.4 !important;
+    }
+    .leaflet-popup-tip {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Route Polyline Glow effects */
     .route-path-r1 {
-      filter: drop-shadow(0 2px 5px rgba(2, 132, 199, 0.45));
+      filter: drop-shadow(0 2px 4px rgba(2, 132, 199, 0.4));
       stroke-dasharray: 10, 7;
       animation: dashMove 30s linear infinite;
     }
     .route-path-r2 {
-      filter: drop-shadow(0 2px 5px rgba(5, 150, 105, 0.45));
+      filter: drop-shadow(0 2px 4px rgba(5, 150, 105, 0.4));
       stroke-dasharray: 10, 7;
       animation: dashMove 30s linear infinite;
     }
     .route-path-r3 {
-      filter: drop-shadow(0 2px 5px rgba(217, 119, 6, 0.45));
+      filter: drop-shadow(0 2px 4px rgba(217, 119, 6, 0.4));
       stroke-dasharray: 10, 7;
       animation: dashMove 30s linear infinite;
     }
@@ -83,24 +136,22 @@
       }
     }
 
-    /* Marker Styling */
+    /* Custom Waypoint Marker */
     .custom-waypoint-marker {
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 9999px;
       font-weight: 700;
-      font-size: 11px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease;
       cursor: pointer;
     }
     .custom-waypoint-marker:hover {
-      transform: scale(1.35);
+      transform: scale(1.3);
       z-index: 999 !important;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
     }
-    
+
     .pulse-dot::after {
       content: '';
       position: absolute;
@@ -116,191 +167,322 @@
       100% { transform: scale(2.2); opacity: 0; }
     }
 
-    /* Custom Popup Styling - Light Mode */
-    .leaflet-popup-content-wrapper {
-      background: #ffffff !important;
-      backdrop-filter: blur(8px);
-      border: 1px solid #e2e8f0;
-      border-radius: 14px !important;
-      color: #0f172a !important;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
-      padding: 4px;
+    /* ========================================================= */
+    /* CSS Media Queries for Responsive Typography & Layouts     */
+    /* ========================================================= */
+
+    /* 1. Large Screens & PC (>= 1024px) */
+    @media (min-width: 1024px) {
+      :root {
+        --header-height: 60px;
+        --sidebar-width: 390px;
+      }
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
     }
-    .leaflet-popup-tip {
-      background: #ffffff !important;
-      border: 1px solid #e2e8f0;
+
+    /* 2. iPad Landscape & Medium Screens (769px - 1023px) */
+    @media (min-width: 769px) and (max-width: 1023px) {
+      :root {
+        --header-height: 56px;
+        --sidebar-width: 330px;
+      }
+      .desktop-only { display: flex !important; }
+      .mobile-only { display: none !important; }
+      .hide-on-ipad { display: none !important; }
+    }
+
+    /* 3. iPad Portrait & Mobile Phones (<= 768px) */
+    @media (max-width: 768px) {
+      :root {
+        --header-height: 54px;
+        --sidebar-width: 100%;
+      }
+      .desktop-only { display: none !important; }
+      .mobile-only { display: flex !important; }
+
+      /* Sidebar transforms into full-height offcanvas drawer */
+      #sidebarPanel {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 86vw;
+        max-width: 380px;
+        z-index: 50;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+      }
+
+      /* Zoom controls relocation on mobile */
+      .leaflet-bottom.leaflet-right {
+        bottom: 74px !important;
+        right: 12px !important;
+      }
+      .leaflet-control-zoom {
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        border-radius: 10px !important;
+        overflow: hidden;
+      }
+      .leaflet-control-zoom a {
+        width: 34px !important;
+        height: 34px !important;
+        line-height: 34px !important;
+      }
+    }
+
+    /* 4. Small Mobile Phones (iPhone SE / Android <= 430px) */
+    @media (max-width: 430px) {
+      :root {
+        --header-height: 50px;
+      }
+      .hide-on-compact-phone { display: none !important; }
+      .custom-waypoint-marker {
+        font-size: 10px !important;
+      }
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col font-sans select-none antialiased">
+<body class="bg-slate-100 text-slate-800 full-viewport-height w-full overflow-hidden flex flex-col font-sans select-none antialiased">
 
-  <!-- Top Navigation Bar (Light) -->
-  <header class="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 md:px-6 flex items-center justify-between shrink-0 z-30 shadow-sm">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center shadow-md shadow-sky-500/20 text-white">
-        <i data-lucide="map-pin" class="w-5 h-5"></i>
+  <!-- Mobile Backdrop Overlay for Drawer -->
+  <div id="drawerBackdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="h-[var(--header-height)] bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-4 md:px-6 flex items-center justify-between shrink-0 z-30 shadow-sm relative">
+    
+    <!-- Left: Brand Logo & Title -->
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <!-- Mobile Drawer Toggle Button -->
+      <button id="mobileDrawerOpenBtn" class="mobile-only p-1.5 sm:p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 active:scale-95 transition" title="展开行程路书">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+
+      <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center shadow-sm text-white shrink-0">
+        <i data-lucide="map-pin" class="w-4 h-4 sm:w-5 sm:h-5"></i>
       </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="font-bold text-base md:text-lg text-slate-900 tracking-wide">北京出发 · 北境自驾大环线</h1>
-          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">浅色数字化地图</span>
+
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <h1 class="font-bold text-xs xs:text-sm sm:text-base md:text-lg text-slate-900 tracking-tight truncate">北京自驾大环线</h1>
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 shrink-0 hidden xs:inline-block">浅色地图</span>
         </div>
-        <p class="text-xs text-slate-500 hidden sm:block">多路线智能交互比选 · 燕山长城 / 草原石林 / 辽东山海 / 齐鲁华夏</p>
+        <p class="text-[11px] text-slate-400 hidden lg:block truncate">数字化智能路书 · 燕山长城 / 草原石林 / 辽东山海 / 齐鲁圣山</p>
       </div>
     </div>
 
-    <!-- Right Controls -->
-    <div class="flex items-center gap-2 md:gap-3">
-      <!-- Search Input -->
-      <div class="relative hidden lg:block w-48 xl:w-64">
-        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+    <!-- Right: Controls -->
+    <div class="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
+      
+      <!-- Desktop & iPad Search Input -->
+      <div class="relative hidden sm:block w-36 md:w-48 lg:w-60">
+        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"></i>
         <input 
           id="spotSearchInput"
           type="text" 
-          placeholder="搜索景点、城市或途经点..." 
-          class="w-full bg-slate-50 border border-slate-200 text-xs rounded-lg pl-9 pr-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition"
+          placeholder="搜索景点/城市..." 
+          class="w-full bg-slate-50 border border-slate-200 text-xs rounded-lg pl-8 pr-2.5 py-1.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:bg-white transition"
         />
       </div>
 
-      <!-- Tile Layer Switcher  -->
-      <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-        <button id="tileAmapBtn" class="px-2.5 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition">高德标准</button>
-        <button id="tileOsmBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">开源OSM</button>
-        <button id="tileEsriGrayBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">极简浅灰</button>
-        <button id="tileSatBtn" class="px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">高清卫星</button>
-      </div>
-
-      <!-- Toggle Sidebar Button (Mobile) -->
-      <button id="toggleSidebarBtn" class="md:hidden p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-slate-900 shadow-sm">
-        <i data-lucide="list" class="w-5 h-5"></i>
+      <!-- Mobile Search Icon Trigger -->
+      <button id="mobileSearchToggleBtn" class="sm:hidden p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 active:scale-95 transition" title="搜索景点">
+        <i data-lucide="search" class="w-4 h-4"></i>
       </button>
 
+      <!-- Tile Layer Switcher (Desktop & iPad) -->
+      <div class="hidden md:flex bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs shrink-0">
+        <button id="tileAmapBtn" class="px-2 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition">高德标准</button>
+        <button id="tileOsmBtn" class="px-2 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">开源OSM</button>
+        <button id="tileEsriGrayBtn" class="px-2 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition hide-on-ipad">极简浅灰</button>
+        <button id="tileSatBtn" class="px-2 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition">卫星影像</button>
+      </div>
+
+      <!-- Mobile & Tablet Tile Switch Dropdown Button -->
+      <div class="relative md:hidden">
+        <button id="mobileTileBtn" class="px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 hover:text-slate-900 flex items-center gap-1 font-medium transition active:scale-95">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span id="mobileTileLabel" class="hidden xs:inline">高德</span>
+        </button>
+        
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileTileMenu" class="hidden absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 text-xs space-y-0.5">
+          <button onclick="switchTile('amap', this)" class="w-full text-left px-3 py-2 text-sky-700 font-semibold bg-sky-50 flex items-center justify-between">
+            <span>高德标准</span>
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="switchTile('osm', this)" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50">开源OSM</button>
+          <button onclick="switchTile('esriGray', this)" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50">极简浅灰</button>
+          <button onclick="switchTile('satellite', this)" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50">卫星影像</button>
+        </div>
+      </div>
+
       <!-- GitHub Link -->
-      <a href="https://github.com/leon7786/20260905-travel-beiing" target="_blank" class="p-2 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 transition shadow-sm" title="查看 GitHub 仓库">
-        <i data-lucide="github" class="w-5 h-5"></i>
+      <a href="https://github.com/leon7786/20260905-travel-beiing" target="_blank" class="p-1.5 sm:p-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition shadow-sm shrink-0" title="查看 GitHub 仓库">
+        <i data-lucide="github" class="w-4 h-4 sm:w-5 sm:h-5"></i>
       </a>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <div class="flex-1 flex relative overflow-hidden">
+  <!-- Mobile Collapsible Search Bar -->
+  <div id="mobileSearchWrapper" class="hidden sm:hidden bg-white border-b border-slate-200 px-3 py-2 z-20 shadow-sm animate-fadeIn">
+    <div class="relative w-full">
+      <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+      <input 
+        id="mobileSpotSearchInput"
+        type="text" 
+        placeholder="输入景点/城市快速定位..." 
+        class="w-full bg-slate-50 border border-slate-200 text-xs rounded-lg pl-9 pr-8 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition"
+      />
+      <button id="closeMobileSearchBtn" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
 
-    <!-- Interactive Sidebar (Light) -->
-    <aside id="sidebarPanel" class="absolute md:static inset-y-0 left-0 z-20 w-80 md:w-96 bg-white/95 md:bg-white backdrop-blur-md border-r border-slate-200 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
+  <!-- Main Work Area -->
+  <div class="flex-1 flex relative overflow-hidden w-full">
+
+    <!-- Sidebar / Off-canvas Drawer -->
+    <aside id="sidebarPanel" class="bg-white/98 backdrop-blur-md border-r border-slate-200 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 w-[var(--sidebar-width)] shrink-0 h-full overflow-hidden">
       
-      <!-- Route Selector Header -->
-      <div class="p-4 border-b border-slate-200 shrink-0 space-y-3 bg-white">
+      <!-- Drawer Top Header (Mobile Close Button) -->
+      <div class="md:hidden px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-sm text-slate-800">行程路书详情</span>
+          <span id="mobileDrawerDayCount" class="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-mono font-medium">15天</span>
+        </div>
+        <button id="mobileDrawerCloseBtn" class="p-1 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Route Selector Box -->
+      <div class="p-3 sm:p-4 border-b border-slate-200 shrink-0 space-y-2.5 bg-white">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">选择规划路线</span>
-          <button id="compareAllBtn" class="text-xs px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1 font-semibold shadow-sm">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">规划方案选择</span>
+          <button id="compareAllBtn" class="text-xs px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1 font-semibold shadow-sm active:scale-95">
             <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-            多路线全景对比
+            <span>全景对比</span>
           </button>
         </div>
 
-        <!-- Route Tabs -->
-        <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-          <button id="tabRoute1" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 bg-white text-sky-700 shadow-sm font-bold border border-sky-100">
-            <span>方案一</span>
-            <span class="text-[10px] opacity-90 font-normal">15天·山海边境</span>
+        <!-- 3 Route Tab Buttons -->
+        <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          <button id="tabRoute1" class="route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 bg-white text-sky-700 shadow-sm font-bold border border-sky-100 active:scale-95">
+            <span class="text-xs">方案一</span>
+            <span class="text-[10px] opacity-90 font-normal truncate max-w-full">山海边境</span>
           </button>
-          <button id="tabRoute2" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900">
-            <span>方案二</span>
-            <span class="text-[10px] opacity-90 font-normal">16天·草原石林</span>
+          <button id="tabRoute2" class="route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900 active:scale-95">
+            <span class="text-xs">方案二</span>
+            <span class="text-[10px] opacity-90 font-normal truncate max-w-full">草原石林</span>
           </button>
-          <button id="tabRoute3" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900">
-            <span>方案三</span>
-            <span class="text-[10px] opacity-90 font-normal">15天·名山大环</span>
+          <button id="tabRoute3" class="route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900 active:scale-95">
+            <span class="text-xs">方案三</span>
+            <span class="text-[10px] opacity-90 font-normal truncate max-w-full">名山大环</span>
           </button>
         </div>
 
-        <!-- Current Route Summary Card (Light Card) -->
-        <div id="routeSummaryCard" class="bg-slate-50/90 border border-slate-200/90 rounded-xl p-3.5 shadow-sm">
-          <div class="flex items-center justify-between mb-1.5">
-            <h2 id="currentRouteTitle" class="font-bold text-sm text-sky-800">方案一：15天 关外山海与边境线</h2>
-            <span id="currentRouteTag" class="text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-sky-100 text-sky-800 border border-sky-200">约 2,000 km</span>
+        <!-- Route Overview Card -->
+        <div id="routeSummaryCard" class="bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <h2 id="currentRouteTitle" class="font-bold text-xs sm:text-sm text-sky-800 truncate">方案一：15天 关外山海与边境线</h2>
+            <span id="currentRouteTag" class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-sky-100 text-sky-800 border border-sky-200 shrink-0">约 2,000 km</span>
           </div>
-          <p id="currentRouteDesc" class="text-xs text-slate-600 leading-relaxed line-clamp-2">
-            串联金山岭、承德避暑山庄、红海滩、千山、本溪水洞、丹东鸭绿江与沈阳故宫，节奏舒缓，兼收边境风貌与滨海风光。
+          <p id="currentRouteDesc" class="text-[11px] sm:text-xs text-slate-600 leading-relaxed line-clamp-2">
+            串联金山岭、承德避暑山庄、红海滩、千山、本溪水洞、丹东鸭绿江与沈阳故宫，兼收边境风貌与滨海风光。
           </p>
 
-          <!-- Key Metrics Grid -->
-          <div class="grid grid-cols-4 gap-2 mt-3 pt-2.5 border-t border-slate-200 text-center">
+          <!-- 4 Stats Grid -->
+          <div class="grid grid-cols-4 gap-1 sm:gap-2 mt-2.5 pt-2 border-t border-slate-200 text-center">
             <div>
-              <div class="text-[10px] text-slate-500 font-medium">总天数</div>
-              <div id="statDays" class="text-xs font-bold text-slate-900 mt-0.5">15 天</div>
+              <div class="text-[9px] sm:text-[10px] text-slate-400 font-medium">总天数</div>
+              <div id="statDays" class="text-[11px] sm:text-xs font-bold text-slate-900 mt-0.5">15 天</div>
             </div>
             <div>
-              <div class="text-[10px] text-slate-500 font-medium">总里程</div>
-              <div id="statKm" class="text-xs font-bold text-slate-900 mt-0.5">~2000 km</div>
+              <div class="text-[9px] sm:text-[10px] text-slate-400 font-medium">总里程</div>
+              <div id="statKm" class="text-[11px] sm:text-xs font-bold text-slate-900 mt-0.5">~2000 km</div>
             </div>
             <div>
-              <div class="text-[10px] text-slate-500 font-medium">核心景区</div>
-              <div id="statSpots" class="text-xs font-bold text-slate-900 mt-0.5">18 处</div>
+              <div class="text-[9px] sm:text-[10px] text-slate-400 font-medium">核心景区</div>
+              <div id="statSpots" class="text-[11px] sm:text-xs font-bold text-slate-900 mt-0.5">18 处</div>
             </div>
             <div>
-              <div class="text-[10px] text-slate-500 font-medium">途经省市</div>
-              <div id="statProvinces" class="text-xs font-bold text-slate-900 mt-0.5">4 省市</div>
+              <div class="text-[9px] sm:text-[10px] text-slate-400 font-medium">途经省市</div>
+              <div id="statProvinces" class="text-[11px] sm:text-xs font-bold text-slate-900 mt-0.5">4 省市</div>
             </div>
           </div>
         </div>
 
-        <!-- Action Tools (Play animation / Fit Bounds) -->
-        <div class="flex items-center gap-2">
-          <button id="playAnimationBtn" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 transition flex items-center justify-center gap-1.5 text-xs font-semibold shadow-sm">
+        <!-- Action Tools (Play Tour & Fit Map) -->
+        <div class="flex items-center gap-2 pt-0.5">
+          <button id="playAnimationBtn" class="flex-1 py-1.5 px-2.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100 active:scale-98 transition flex items-center justify-center gap-1.5 text-xs font-semibold shadow-sm">
             <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-600"></i>
             <span>漫游轨迹回放</span>
           </button>
-          <button id="fitRouteBtn" class="py-1.5 px-3 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 transition flex items-center justify-center gap-1.5 text-xs font-medium shadow-sm">
+          <button id="fitRouteBtn" class="py-1.5 px-3 rounded-lg bg-white hover:bg-slate-50 active:scale-98 border border-slate-200 text-slate-700 hover:text-slate-900 transition flex items-center justify-center gap-1 text-xs font-medium shadow-sm">
             <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-            <span>全景居中</span>
+            <span>居中</span>
           </button>
         </div>
       </div>
 
       <!-- Itinerary Day-by-Day List -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-2.5 bg-slate-50/50" id="itineraryList">
-        <!-- Dynamically injected itinerary items -->
+      <div class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 bg-slate-50/60" id="itineraryList">
+        <!-- Dynamically rendered -->
       </div>
     </aside>
 
-    <!-- Map Canvas -->
-    <main class="flex-1 relative h-full">
+    <!-- Map Canvas Container -->
+    <main class="flex-1 relative h-full w-full overflow-hidden">
       <div id="map"></div>
 
-      <!-- Floating Legend Overlay (Light) -->
-      <div class="absolute bottom-6 right-6 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 p-3.5 rounded-xl shadow-xl text-xs space-y-2 max-w-xs pointer-events-auto">
+      <!-- Floating Legend (Desktop & iPad) -->
+      <div id="desktopLegend" class="hidden sm:block absolute bottom-6 right-6 z-20 bg-white/95 backdrop-blur-md border border-slate-200 p-3.5 rounded-xl shadow-xl text-xs space-y-2 max-w-[280px]">
         <div class="flex items-center justify-between font-bold text-slate-800 border-b border-slate-100 pb-1.5">
-          <span>图例与路线标识</span>
+          <span>路线方案标识</span>
           <i data-lucide="compass" class="w-4 h-4 text-sky-600"></i>
         </div>
-        <div class="space-y-1.5">
+        <div class="space-y-1">
           <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition" onclick="selectRoute(1)">
-            <span class="w-3.5 h-3.5 rounded-full bg-sky-600 shadow-sm inline-block"></span>
-            <span class="text-slate-700 font-medium">方案一：15天 关外山海与边境线</span>
+            <span class="w-3 h-3 rounded-full bg-sky-600 shrink-0 inline-block shadow-sm"></span>
+            <span class="text-slate-700 font-medium truncate">方案一：15天 关外山海</span>
           </div>
           <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition" onclick="selectRoute(2)">
-            <span class="w-3.5 h-3.5 rounded-full bg-emerald-600 shadow-sm inline-block"></span>
-            <span class="text-slate-700 font-medium">方案二：16天 草原森林石林奇观</span>
+            <span class="w-3 h-3 rounded-full bg-emerald-600 shrink-0 inline-block shadow-sm"></span>
+            <span class="text-slate-700 font-medium truncate">方案二：16天 草原石林</span>
           </div>
           <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition" onclick="selectRoute(3)">
-            <span class="w-3.5 h-3.5 rounded-full bg-amber-600 shadow-sm inline-block"></span>
-            <span class="text-slate-700 font-medium">方案三：15天 关东名胜+华北圣山</span>
+            <span class="w-3 h-3 rounded-full bg-amber-600 shrink-0 inline-block shadow-sm"></span>
+            <span class="text-slate-700 font-medium truncate">方案三：15天 圣山大环</span>
           </div>
-        </div>
-        <div class="text-[11px] text-slate-500 pt-1 border-t border-slate-100">
-          点击站点圆标即可展开游玩详情与高亮动线
         </div>
       </div>
 
-      <!-- Floating Animation HUD (Light) -->
-      <div id="animHud" class="hidden absolute top-6 left-6 z-20 bg-white/95 backdrop-blur-md border border-sky-300 px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-3">
-        <div class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></div>
-        <div>
-          <div class="text-[10px] text-slate-500 font-medium">正在播放路线漫游</div>
-          <div id="animHudDay" class="text-xs font-bold text-sky-800">第 1 天 · 北京 ➔ 密云/滦平</div>
+      <!-- Mobile Bottom Floating Quick Bar (Phone only) -->
+      <div class="sm:hidden absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
+        <!-- Left: Quick Switcher Pill -->
+        <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-1 shadow-lg flex items-center gap-1 pointer-events-auto shrink-0">
+          <button onclick="selectRoute(1)" id="mobileQuickR1" class="px-2 py-1 rounded-lg text-xs font-bold bg-sky-100 text-sky-800 transition">方案1</button>
+          <button onclick="selectRoute(2)" id="mobileQuickR2" class="px-2 py-1 rounded-lg text-xs text-slate-600 transition">方案2</button>
+          <button onclick="selectRoute(3)" id="mobileQuickR3" class="px-2 py-1 rounded-lg text-xs text-slate-600 transition">方案3</button>
         </div>
-        <button id="stopAnimBtn" class="ml-2 text-slate-400 hover:text-slate-700 p-1">
+
+        <!-- Right: Open Itinerary Drawer Pill -->
+        <button id="mobileFloatingDrawerBtn" class="bg-slate-900 text-white shadow-lg shadow-slate-900/20 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 pointer-events-auto active:scale-95 transition">
+          <i data-lucide="list-ordered" class="w-3.5 h-3.5 text-sky-400"></i>
+          <span>每日行程</span>
+        </button>
+      </div>
+
+      <!-- Floating Animation HUD -->
+      <div id="animHud" class="hidden absolute top-3 sm:top-5 left-3 sm:left-5 z-20 bg-white/95 backdrop-blur-md border border-sky-300 px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-2.5 max-w-[calc(100vw-24px)]">
+        <div class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping shrink-0"></div>
+        <div class="min-w-0">
+          <div class="text-[10px] text-slate-400 font-medium leading-none">漫游播放中</div>
+          <div id="animHudDay" class="text-xs font-bold text-sky-800 truncate mt-0.5">第 1 天 · 北京 ➔ 密云/滦平</div>
+        </div>
+        <button id="stopAnimBtn" class="ml-1 text-slate-400 hover:text-slate-700 p-1 shrink-0">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -311,7 +493,10 @@
     // Lucide Icons initialization
     lucide.createIcons();
 
-    // Route Definitions (Enhanced for Light Background)
+    // Responsive helper
+    const isMobile = () => window.innerWidth <= 768;
+
+    // Route Definitions
     const ROUTES_DATA = {
       1: {
         id: 1,
@@ -415,28 +600,28 @@
     let animTimer = null;
     let animStep = 0;
 
-    // Tile Layers (AutoNavi, OpenStreetMap, Esri Light Gray, Esri Satellite)
+    // Tile Layers (Clean Light sources, no carto)
     const TILE_SOURCES = {
       amap: L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
         maxZoom: 18,
         subdomains: ['1', '2', '3', '4'],
-        attribution: '&copy; 高德地图 (AutoNavi)'
+        attribution: '&copy; 高德地图'
       }),
       osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         subdomains: ['a', 'b', 'c'],
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution: '&copy; OpenStreetMap'
       }),
       esriGray: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 16,
-        attribution: '&copy; Esri &mdash; Light Gray Canvas'
+        attribution: '&copy; Esri Light Gray'
       }),
       satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
-        attribution: '&copy; Esri &mdash; Earthstar Geographics'
+        attribution: '&copy; Esri World Imagery'
       })
     };
-    let currentTileLayer = TILE_SOURCES.amap; // Default to AutoNavi Light Road Map
+    let currentTileLayer = TILE_SOURCES.amap;
 
     // Init Map
     function initMap() {
@@ -494,7 +679,7 @@
         const markerBg = isStartOrEnd ? '#ef4444' : route.color;
         
         const html = `
-          <div class="custom-waypoint-marker ${isStartOrEnd ? 'pulse-dot' : ''}" style="background: ${markerBg}; color: #ffffff; width: ${isStartOrEnd ? '30px' : '24px'}; height: ${isStartOrEnd ? '30px' : '24px'}; border: 2px solid #ffffff;">
+          <div class="custom-waypoint-marker ${isStartOrEnd ? 'pulse-dot' : ''}" style="background: ${markerBg}; color: #ffffff; width: ${isStartOrEnd ? '28px' : '22px'}; height: ${isStartOrEnd ? '28px' : '22px'}; border: 2px solid #ffffff; font-size: 11px;">
             ${d.day}
           </div>
         `;
@@ -502,24 +687,24 @@
         const icon = L.divIcon({
           html: html,
           className: '',
-          iconSize: [30, 30],
-          iconAnchor: [15, 15]
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
         });
 
         const marker = L.marker(d.coords, { icon: icon });
 
-        // Popup Content (Light Theme)
+        // Popup Content (Light Responsive Theme)
         const popupHtml = `
-          <div class="p-2 space-y-1.5 min-w-[220px]">
+          <div class="space-y-1.5 min-w-[200px] max-w-[280px]">
             <div class="flex items-center justify-between border-b border-slate-100 pb-1">
-              <span class="font-bold text-sm" style="color: ${route.color}">${d.day} · ${d.node}</span>
+              <span class="font-bold text-xs sm:text-sm" style="color: ${route.color}">${d.day} · ${d.node}</span>
               <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono">${d.distance}</span>
             </div>
             <div class="text-xs font-semibold text-slate-800">
               <i class="inline-block w-2 h-2 rounded-full mr-1" style="background: ${route.color}"></i>
               ${d.spots}
             </div>
-            <div class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed">
+            <div class="text-[11px] text-slate-600 bg-slate-50 p-1.5 rounded-lg border border-slate-100 leading-relaxed">
               💡 ${d.tips}
             </div>
           </div>
@@ -547,12 +732,25 @@
       document.querySelectorAll('.route-tab').forEach((tab, index) => {
         const id = index + 1;
         if (id === routeId) {
-          tab.className = `route-tab px-2 py-2 rounded-lg font-bold transition text-center flex flex-col items-center gap-1 shadow-sm bg-white border border-slate-200`;
+          tab.className = `route-tab px-1.5 py-2 rounded-lg font-bold transition text-center flex flex-col items-center gap-0.5 shadow-sm bg-white border border-slate-200`;
           if (id === 1) { tab.classList.add('text-sky-700', 'border-sky-200'); }
           if (id === 2) { tab.classList.add('text-emerald-700', 'border-emerald-200'); }
           if (id === 3) { tab.classList.add('text-amber-700', 'border-amber-200'); }
         } else {
-          tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900';
+          tab.className = 'route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900';
+        }
+      });
+
+      // Update Mobile Floating Bar buttons
+      [1, 2, 3].forEach(id => {
+        const btn = document.getElementById(`mobileQuickR${id}`);
+        if (!btn) return;
+        if (id === routeId) {
+          btn.className = `px-2 py-1 rounded-lg text-xs font-bold transition shadow-sm ${
+            id === 1 ? 'bg-sky-100 text-sky-800' : id === 2 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+          }`;
+        } else {
+          btn.className = 'px-2 py-1 rounded-lg text-xs text-slate-600 transition';
         }
       });
 
@@ -569,11 +767,11 @@
       const tagEl = document.getElementById('currentRouteTag');
       tagEl.textContent = `约 ${route.totalKm} km`;
       if (routeId === 1) {
-        tagEl.className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-sky-100 text-sky-800 border border-sky-200';
+        tagEl.className = 'text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-sky-100 text-sky-800 border border-sky-200 shrink-0';
       } else if (routeId === 2) {
-        tagEl.className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200';
+        tagEl.className = 'text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0';
       } else {
-        tagEl.className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-amber-100 text-amber-800 border border-amber-200';
+        tagEl.className = 'text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-amber-100 text-amber-800 border border-amber-200 shrink-0';
       }
 
       document.getElementById('currentRouteDesc').textContent = route.desc;
@@ -581,6 +779,9 @@
       document.getElementById('statKm').textContent = `~${route.totalKm} km`;
       document.getElementById('statSpots').textContent = `${route.spotCount} 处`;
       document.getElementById('statProvinces').textContent = route.provinces;
+      
+      const mobileDrawerBadge = document.getElementById('mobileDrawerDayCount');
+      if (mobileDrawerBadge) mobileDrawerBadge.textContent = `${route.totalDays}天`;
 
       // Clear other layers and add current
       Object.keys(ROUTES_DATA).forEach(id => {
@@ -591,8 +792,9 @@
       routeLayers[routeId].addTo(map);
       markerLayers[routeId].addTo(map);
 
-      // Fit map bounds to current route
-      map.fitBounds(routeLayers[routeId].getBounds(), { padding: [40, 40] });
+      // Fit map bounds to current route with responsive padding
+      const pad = isMobile() ? [20, 20] : [40, 40];
+      map.fitBounds(routeLayers[routeId].getBounds(), { padding: pad });
 
       // Render Itinerary List
       renderItineraryList(route);
@@ -604,7 +806,7 @@
       isCompareMode = true;
 
       document.querySelectorAll('.route-tab').forEach(tab => {
-        tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900';
+        tab.className = 'route-tab px-1.5 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-0.5 text-slate-600 hover:text-slate-900';
       });
 
       const compBtn = document.getElementById('compareAllBtn');
@@ -614,8 +816,8 @@
       document.getElementById('currentRouteTitle').textContent = "全景对比：3大环线同屏纵览";
       document.getElementById('currentRouteTitle').style.color = "#4f46e5";
       document.getElementById('currentRouteTag').textContent = "3条独立方案";
-      document.getElementById('currentRouteTag').className = 'text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200';
-      document.getElementById('currentRouteDesc').textContent = "蔚蓝为方案一（15天山海边境），青翠为方案二（16天草原石林），暖橙为方案三（15天五台泰山圣山）。";
+      document.getElementById('currentRouteTag').className = 'text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200 shrink-0';
+      document.getElementById('currentRouteDesc').textContent = "天蓝为方案一（15天山海边境），青翠为方案二（16天草原石林），暖橙为方案三（15天五台泰山圣山）。";
       document.getElementById('statDays').textContent = "15-16天";
       document.getElementById('statKm').textContent = "2000-2700";
       document.getElementById('statSpots').textContent = "40+ 处";
@@ -629,27 +831,28 @@
         allBounds.extend(routeLayers[id].getBounds());
       });
 
-      map.fitBounds(allBounds, { padding: [50, 50] });
+      const pad = isMobile() ? [20, 20] : [40, 40];
+      map.fitBounds(allBounds, { padding: pad });
 
       // Render Comparison Tab in sidebar
       const listContainer = document.getElementById('itineraryList');
       listContainer.innerHTML = `
-        <div class="space-y-3">
+        <div class="space-y-2.5">
           ${[1, 2, 3].map(id => {
             const r = ROUTES_DATA[id];
             return `
-              <div class="p-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition shadow-sm" onclick="selectRoute(${id})">
+              <div class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition shadow-sm" onclick="selectRoute(${id})">
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full" style="background: ${r.color}"></span>
-                    <span class="font-bold text-sm text-slate-900">${r.title}</span>
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background: ${r.color}"></span>
+                    <span class="font-bold text-xs sm:text-sm text-slate-900 truncate">${r.title}</span>
                   </div>
-                  <span class="text-xs font-mono font-bold" style="color: ${r.color}">~${r.totalKm} km</span>
+                  <span class="text-[11px] font-mono font-bold shrink-0 ml-1" style="color: ${r.color}">~${r.totalKm} km</span>
                 </div>
-                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${r.desc}</p>
-                <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-600 pt-2 border-t border-slate-100">
+                <p class="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">${r.desc}</p>
+                <div class="mt-2 flex items-center justify-between text-[10px] text-slate-600 pt-1.5 border-t border-slate-100">
                   <span>共 ${r.totalDays} 天 · ${r.spotCount} 景点</span>
-                  <span class="text-indigo-600 font-semibold flex items-center gap-1">点击查看此方案 <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+                  <span class="text-indigo-600 font-semibold flex items-center gap-1">选择此路线 <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
                 </div>
               </div>
             `;
@@ -667,25 +870,25 @@
       route.days.forEach((d, index) => {
         const item = document.createElement('div');
         item.id = `itinerary-day-${d.day}`;
-        item.className = 'group p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/90 hover:border-slate-300 cursor-pointer transition duration-150 shadow-sm';
+        item.className = 'group p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50/90 hover:border-slate-300 cursor-pointer transition duration-150 shadow-sm';
         
         item.innerHTML = `
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold px-2 py-0.5 rounded-md font-mono" style="background: ${route.color}15; color: ${route.color}; border: 1px solid ${route.color}35;">
+          <div class="flex items-start justify-between gap-1.5">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-[11px] font-bold px-1.5 py-0.5 rounded font-mono shrink-0" style="background: ${route.color}15; color: ${route.color}; border: 1px solid ${route.color}35;">
                 ${d.day}
               </span>
-              <h3 class="text-xs font-semibold text-slate-800 group-hover:text-slate-950 transition">${d.node}</h3>
+              <h3 class="text-xs font-semibold text-slate-800 group-hover:text-slate-950 transition truncate">${d.node}</h3>
             </div>
             <span class="text-[10px] font-mono text-slate-500 shrink-0 font-medium">${d.distance}</span>
           </div>
 
-          <div class="mt-1.5 text-xs text-slate-700 flex items-center gap-1.5">
-            <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" style="color: ${route.color}"></i>
+          <div class="mt-1 text-[11px] sm:text-xs text-slate-700 flex items-center gap-1">
+            <i data-lucide="map-pin" class="w-3 h-3 shrink-0" style="color: ${route.color}"></i>
             <span class="truncate font-medium">${d.spots}</span>
           </div>
 
-          <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed group-hover:text-slate-600 transition">
+          <div class="mt-1.5 text-[10.5px] sm:text-[11px] text-slate-500 bg-slate-50 p-1.5 rounded-lg border border-slate-100 leading-relaxed group-hover:text-slate-600 transition">
             💡 ${d.tips}
           </div>
         `;
@@ -700,6 +903,11 @@
           }
 
           highlightSidebarDay(d.day);
+
+          // If on mobile drawer, close drawer so user sees the map
+          if (isMobile()) {
+            closeMobileDrawer();
+          }
         });
 
         container.appendChild(item);
@@ -742,7 +950,8 @@
       function step() {
         if (animStep >= route.days.length) {
           stopAnimation();
-          map.fitBounds(routeLayers[currentRouteId].getBounds(), { padding: [40, 40] });
+          const pad = isMobile() ? [20, 20] : [40, 40];
+          map.fitBounds(routeLayers[currentRouteId].getBounds(), { padding: pad });
           return;
         }
 
@@ -780,6 +989,49 @@
       }
     }
 
+    // Mobile Drawer Controls
+    function openMobileDrawer() {
+      const sidebar = document.getElementById('sidebarPanel');
+      const backdrop = document.getElementById('drawerBackdrop');
+      sidebar.classList.remove('-translate-x-full');
+      backdrop.classList.remove('hidden');
+      setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+    }
+
+    function closeMobileDrawer() {
+      const sidebar = document.getElementById('sidebarPanel');
+      const backdrop = document.getElementById('drawerBackdrop');
+      sidebar.classList.add('-translate-x-full');
+      backdrop.classList.add('opacity-0');
+      setTimeout(() => backdrop.classList.add('hidden'), 300);
+    }
+
+    // Switch Tile Layer
+    function switchTile(type, btn) {
+      map.removeLayer(currentTileLayer);
+      currentTileLayer = TILE_SOURCES[type];
+      currentTileLayer.addTo(map);
+
+      // Update Desktop Buttons
+      ['tileAmapBtn', 'tileOsmBtn', 'tileEsriGrayBtn', 'tileSatBtn'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.className = 'px-2 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition';
+      });
+      if (type === 'amap' && document.getElementById('tileAmapBtn')) document.getElementById('tileAmapBtn').className = 'px-2 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition';
+      if (type === 'osm' && document.getElementById('tileOsmBtn')) document.getElementById('tileOsmBtn').className = 'px-2 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition';
+      if (type === 'esriGray' && document.getElementById('tileEsriGrayBtn')) document.getElementById('tileEsriGrayBtn').className = 'px-2 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition';
+      if (type === 'satellite' && document.getElementById('tileSatBtn')) document.getElementById('tileSatBtn').className = 'px-2 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition';
+
+      // Update Mobile Dropdown Label
+      const labelMap = { amap: '高德', osm: 'OSM', esriGray: '浅灰', satellite: '卫星' };
+      const mobileLabel = document.getElementById('mobileTileLabel');
+      if (mobileLabel) mobileLabel.textContent = labelMap[type] || '底图';
+
+      // Hide mobile menu if open
+      const menu = document.getElementById('mobileTileMenu');
+      if (menu) menu.classList.add('hidden');
+    }
+
     // Setup Event Listeners
     function setupEventListeners() {
       // Route Tabs
@@ -800,46 +1052,62 @@
 
       // Fit Route
       document.getElementById('fitRouteBtn').addEventListener('click', () => {
+        const pad = isMobile() ? [20, 20] : [40, 40];
         if (isCompareMode) {
           const allBounds = L.latLngBounds([]);
           Object.keys(ROUTES_DATA).forEach(id => allBounds.extend(routeLayers[id].getBounds()));
-          map.fitBounds(allBounds, { padding: [50, 50] });
+          map.fitBounds(allBounds, { padding: pad });
         } else {
-          map.fitBounds(routeLayers[currentRouteId].getBounds(), { padding: [40, 40] });
+          map.fitBounds(routeLayers[currentRouteId].getBounds(), { padding: pad });
         }
       });
 
-      // Tile Switcher (AutoNavi, OpenStreetMap, Esri Gray, Esri Satellite)
-      const switchTile = (type, btn) => {
-        map.removeLayer(currentTileLayer);
-        currentTileLayer = TILE_SOURCES[type];
-        currentTileLayer.addTo(map);
-
-        ['tileAmapBtn', 'tileOsmBtn', 'tileEsriGrayBtn', 'tileSatBtn'].forEach(id => {
-          const b = document.getElementById(id);
-          b.className = 'px-2.5 py-1 rounded font-medium text-slate-600 hover:text-slate-900 transition';
-        });
-        btn.className = 'px-2.5 py-1 rounded font-semibold bg-white text-sky-700 shadow-sm transition';
-      };
-
+      // Desktop Tile Switcher
       document.getElementById('tileAmapBtn').addEventListener('click', function() { switchTile('amap', this); });
       document.getElementById('tileOsmBtn').addEventListener('click', function() { switchTile('osm', this); });
       document.getElementById('tileEsriGrayBtn').addEventListener('click', function() { switchTile('esriGray', this); });
       document.getElementById('tileSatBtn').addEventListener('click', function() { switchTile('satellite', this); });
 
-      // Mobile Sidebar Toggle
-      const sidebar = document.getElementById('sidebarPanel');
-      document.getElementById('toggleSidebarBtn').addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
+      // Mobile Tile Dropdown Toggle
+      const mobileTileBtn = document.getElementById('mobileTileBtn');
+      const mobileTileMenu = document.getElementById('mobileTileMenu');
+      mobileTileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileTileMenu.classList.toggle('hidden');
+      });
+      document.addEventListener('click', () => {
+        if (!mobileTileMenu.classList.contains('hidden')) {
+          mobileTileMenu.classList.add('hidden');
+        }
       });
 
-      // Spot Search
-      document.getElementById('spotSearchInput').addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
+      // Mobile Drawer open/close
+      document.getElementById('mobileDrawerOpenBtn').addEventListener('click', openMobileDrawer);
+      document.getElementById('mobileFloatingDrawerBtn').addEventListener('click', openMobileDrawer);
+      document.getElementById('mobileDrawerCloseBtn').addEventListener('click', closeMobileDrawer);
+      document.getElementById('drawerBackdrop').addEventListener('click', closeMobileDrawer);
+
+      // Mobile Search bar toggle
+      const mobileSearchToggleBtn = document.getElementById('mobileSearchToggleBtn');
+      const mobileSearchWrapper = document.getElementById('mobileSearchWrapper');
+      const closeMobileSearchBtn = document.getElementById('closeMobileSearchBtn');
+      
+      mobileSearchToggleBtn.addEventListener('click', () => {
+        mobileSearchWrapper.classList.toggle('hidden');
+        if (!mobileSearchWrapper.classList.contains('hidden')) {
+          document.getElementById('mobileSpotSearchInput').focus();
+        }
+      });
+      closeMobileSearchBtn.addEventListener('click', () => {
+        mobileSearchWrapper.classList.add('hidden');
+      });
+
+      // Unified Search Function
+      const handleSearch = (query) => {
+        query = query.trim().toLowerCase();
         if (!query) return;
 
         let found = false;
-        // Search in current route first, then others
         const currentRoute = ROUTES_DATA[currentRouteId];
         currentRoute.days.forEach((d, idx) => {
           if (!found && (d.spots.toLowerCase().includes(query) || d.node.toLowerCase().includes(query))) {
@@ -852,7 +1120,6 @@
         });
 
         if (!found) {
-          // Check all routes
           Object.keys(ROUTES_DATA).forEach(id => {
             if (found) return;
             ROUTES_DATA[id].days.forEach((d) => {
@@ -866,6 +1133,17 @@
               }
             });
           });
+        }
+      };
+
+      document.getElementById('spotSearchInput').addEventListener('input', (e) => handleSearch(e.target.value));
+      document.getElementById('mobileSpotSearchInput').addEventListener('input', (e) => handleSearch(e.target.value));
+
+      // Window resize listener
+      window.addEventListener('resize', () => {
+        if (!isMobile()) {
+          document.getElementById('drawerBackdrop').classList.add('hidden');
+          document.getElementById('sidebarPanel').classList.remove('-translate-x-full');
         }
       });
     }
