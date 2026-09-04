@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 北京出发自驾大环线 · 数字化中国地图导航</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(71, 85, 105, 0.8);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 1);
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      background: #0b0f19;
+    }
+
+    .leaflet-container {
+      font-family: inherit;
+    }
+
+    /* Route Polyline Glow effects */
+    .route-path-r1 {
+      filter: drop-shadow(0 0 6px #06b6d4);
+      stroke-dasharray: 10, 8;
+      animation: dashMove 30s linear infinite;
+    }
+    .route-path-r2 {
+      filter: drop-shadow(0 0 6px #10b981);
+      stroke-dasharray: 10, 8;
+      animation: dashMove 30s linear infinite;
+    }
+    .route-path-r3 {
+      filter: drop-shadow(0 0 6px #f59e0b);
+      stroke-dasharray: 10, 8;
+      animation: dashMove 30s linear infinite;
+    }
+
+    @keyframes dashMove {
+      to {
+        stroke-dashoffset: -1000;
+      }
+    }
+
+    /* Marker Pulse */
+    .custom-waypoint-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 11px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+    .custom-waypoint-marker:hover {
+      transform: scale(1.3);
+      z-index: 999 !important;
+    }
+    
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 9999px;
+      animation: pulseAnim 2s infinite ease-out;
+      opacity: 0.7;
+    }
+    @keyframes pulseAnim {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    /* Custom Popup Styling */
+    .leaflet-popup-content-wrapper {
+      background: rgba(15, 23, 42, 0.95) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px !important;
+      color: #f8fafc !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      padding: 4px;
+    }
+    .leaflet-popup-tip {
+      background: rgba(15, 23, 42, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden flex flex-col font-sans select-none antialiased">
+
+  <!-- Top Navigation Bar -->
+  <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800/80 px-4 md:px-6 flex items-center justify-between shrink-0 z-30 shadow-lg">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-slate-950">
+        <i data-lucide="map-pin" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-bold text-base md:text-lg text-white tracking-wide">北京出发 · 北境自驾大环线</h1>
+          <span class="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Digital Map</span>
+        </div>
+        <p class="text-xs text-slate-400 hidden sm:block">多路线数字化智能比选 · 燕山长城 / 草原石林 / 辽东山海 / 齐鲁华夏</p>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2 md:gap-3">
+      <!-- Search Input -->
+      <div class="relative hidden lg:block w-48 xl:w-64">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+        <input 
+          id="spotSearchInput"
+          type="text" 
+          placeholder="快速搜索景点或城市..." 
+          class="w-full bg-slate-800/80 border border-slate-700/80 text-xs rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+        />
+      </div>
+
+      <!-- Tile Layer Switcher -->
+      <div class="flex bg-slate-800/80 p-1 rounded-lg border border-slate-700/70 text-xs">
+        <button id="tileDarkBtn" class="px-2.5 py-1 rounded font-medium bg-cyan-500 text-slate-950 transition shadow">科技暗色</button>
+        <button id="tileSatBtn" class="px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white transition">高清卫星</button>
+        <button id="tileLightBtn" class="px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white transition">清新浅色</button>
+      </div>
+
+      <!-- Toggle Sidebar Button (Mobile) -->
+      <button id="toggleSidebarBtn" class="md:hidden p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 hover:text-white">
+        <i data-lucide="list" class="w-5 h-5"></i>
+      </button>
+
+      <!-- GitHub Link -->
+      <a href="https://github.com/leon7786/20260905-travel-beiing" target="_blank" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition" title="查看 GitHub 仓库">
+        <i data-lucide="github" class="w-5 h-5"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex relative overflow-hidden">
+
+    <!-- Interactive Sidebar -->
+    <aside id="sidebarPanel" class="absolute md:static inset-y-0 left-0 z-20 w-80 md:w-96 bg-slate-900/95 md:bg-slate-900/90 backdrop-blur-md border-r border-slate-800 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none">
+      
+      <!-- Route Selector Header -->
+      <div class="p-4 border-b border-slate-800 shrink-0 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">选择规划路线</span>
+          <button id="compareAllBtn" class="text-xs px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition flex items-center gap-1 font-medium">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            多路线全景对比
+          </button>
+        </div>
+
+        <!-- Route Tabs -->
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80 text-xs">
+          <button id="tabRoute1" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 bg-cyan-500 text-slate-950 shadow-md">
+            <span class="font-bold">方案一</span>
+            <span class="text-[10px] opacity-80">15天·山海边境</span>
+          </button>
+          <button id="tabRoute2" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+            <span class="font-bold">方案二</span>
+            <span class="text-[10px] opacity-80">16天·草原石林</span>
+          </button>
+          <button id="tabRoute3" class="route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200">
+            <span class="font-bold">方案三</span>
+            <span class="text-[10px] opacity-80">15天·名山大环</span>
+          </button>
+        </div>
+
+        <!-- Current Route Summary Card -->
+        <div id="routeSummaryCard" class="bg-gradient-to-br from-slate-800/80 to-slate-900/90 border border-slate-700/60 rounded-xl p-3 shadow-inner">
+          <div class="flex items-center justify-between mb-1.5">
+            <h2 id="currentRouteTitle" class="font-bold text-sm text-cyan-300">方案一：15天 关外山海与边境线</h2>
+            <span id="currentRouteTag" class="text-[10px] px-2 py-0.5 rounded font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">约 2,000 km</span>
+          </div>
+          <p id="currentRouteDesc" class="text-xs text-slate-300 leading-relaxed line-clamp-2">
+            串联金山岭、承德避暑山庄、红海滩、千山、本溪水洞、丹东鸭绿江与沈阳故宫，节奏舒缓，兼收边境风貌与滨海风光。
+          </p>
+
+          <!-- Key Metrics Grid -->
+          <div class="grid grid-cols-4 gap-2 mt-3 pt-2.5 border-t border-slate-700/50 text-center">
+            <div>
+              <div class="text-[10px] text-slate-400">总天数</div>
+              <div id="statDays" class="text-xs font-bold text-white mt-0.5">15 天</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400">总里程</div>
+              <div id="statKm" class="text-xs font-bold text-white mt-0.5">~2000 km</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400">核心景区</div>
+              <div id="statSpots" class="text-xs font-bold text-white mt-0.5">18 处</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400">途经省市</div>
+              <div id="statProvinces" class="text-xs font-bold text-white mt-0.5">4 省市</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Tools (Play animation / Fit Bounds) -->
+        <div class="flex items-center gap-2">
+          <button id="playAnimationBtn" class="flex-1 py-1.5 px-3 rounded-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600/30 transition flex items-center justify-center gap-1.5 text-xs font-semibold">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+            <span>漫游轨迹回放</span>
+          </button>
+          <button id="fitRouteBtn" class="py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center gap-1.5 text-xs">
+            <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+            <span>全景居中</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Itinerary Day-by-Day List -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-2.5" id="itineraryList">
+        <!-- Dynamically injected itinerary items -->
+      </div>
+    </aside>
+
+    <!-- Map Canvas -->
+    <main class="flex-1 relative h-full">
+      <div id="map"></div>
+
+      <!-- Floating Legend Overlay -->
+      <div class="absolute bottom-6 right-6 z-20 bg-slate-900/90 backdrop-blur-md border border-slate-800 p-3.5 rounded-xl shadow-2xl text-xs space-y-2 max-w-xs pointer-events-auto">
+        <div class="flex items-center justify-between font-bold text-slate-300 border-b border-slate-800 pb-1.5">
+          <span>图例与路线标识</span>
+          <i data-lucide="compass" class="w-4 h-4 text-cyan-400"></i>
+        </div>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="selectRoute(1)">
+            <span class="w-3.5 h-3.5 rounded-full bg-cyan-500 shadow-sm shadow-cyan-500/50 inline-block"></span>
+            <span class="text-slate-300">方案一：15天 关外山海与边境线</span>
+          </div>
+          <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="selectRoute(2)">
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 inline-block"></span>
+            <span class="text-slate-300">方案二：16天 草原森林石林奇观</span>
+          </div>
+          <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" onclick="selectRoute(3)">
+            <span class="w-3.5 h-3.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50 inline-block"></span>
+            <span class="text-slate-300">方案三：15天 关东名胜+华北圣山</span>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 pt-1 border-t border-slate-800/80">
+          点击站点圆标即可展开游玩详情与高亮动线
+        </div>
+      </div>
+
+      <!-- Floating Speed / Animation HUD (Hidden by default) -->
+      <div id="animHud" class="hidden absolute top-6 left-6 z-20 bg-slate-900/90 backdrop-blur-md border border-cyan-500/40 px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></div>
+        <div>
+          <div class="text-[10px] text-slate-400">正在播放路线漫游</div>
+          <div id="animHudDay" class="text-xs font-bold text-cyan-300">第 1 天 · 北京 ➔ 密云/滦平</div>
+        </div>
+        <button id="stopAnimBtn" class="ml-2 text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Lucide Icons initialization
+    lucide.createIcons();
+
+    // Route Definitions
+    const ROUTES_DATA = {
+      1: {
+        id: 1,
+        title: "方案一：15天 关外山海与边境线",
+        badge: "关外历史 + 辽东边境",
+        color: "#06b6d4",
+        glowColor: "#22d3ee",
+        strokeClass: "route-path-r1",
+        desc: "以京承高速启程，沿辽西走廊直抵盘锦与鞍山，深入中朝边境丹东，返程漫游秦皇岛与蓟州盘山，感受山海雄关与关外名胜的完美结合。",
+        totalDays: 15,
+        totalKm: 2000,
+        spotCount: 18,
+        provinces: "京、冀、辽、津",
+        days: [
+          { day: "D1", node: "北京 ➔ 密云/滦平", spots: "金山岭长城、古北水镇", distance: "约 130 km", coords: [40.6769, 117.2471], tips: "傍晚登金山岭长城看壮阔日落，夜宿古北水镇赏司马台长城夜景。" },
+          { day: "D2", node: "密云 ➔ 承德", spots: "承德避暑山庄、外八庙", distance: "约 110 km", coords: [40.9880, 117.9392], tips: "漫步清代皇家园林湖区，参观藏蒙融合的普陀宗乘之庙（小布达拉宫）。" },
+          { day: "D3", node: "承德 ➔ 锦州", spots: "沿京哈向东，下午游览 医巫闾山", distance: "约 330 km", coords: [41.6062, 121.7335], tips: "翻越辽西走廊北翼，探寻东北三大名山之首医巫闾山古刹。" },
+          { day: "D4", node: "锦州 ➔ 兴城", spots: "上午 笔架山（走潮汐天桥），下午 兴城古城 / 兴城海滨", distance: "约 60 km", coords: [40.8123, 120.9782], tips: "注意提前查潮汐表走天桥登岛，下午感受明代保留最完整的宁远古城。" },
+          { day: "D5", node: "兴城 ➔ 盘锦", spots: "盘锦红海滩国家风景廊道（看红滩落日）", distance: "约 120 km", coords: [40.9790, 121.8021], tips: "碱蓬草连绵如织，傍晚稻田画与落日晚霞交相辉映。" },
+          { day: "D6", node: "盘锦 ➔ 鞍山", spots: "深度游览东北名山 千山风景名胜区", distance: "约 110 km", coords: [41.0264, 123.1362], tips: "无峰不奇，无石不峭，弥勒大佛与释道合一圣地。" },
+          { day: "D7", node: "鞍山 ➔ 本溪", spots: "本溪水洞（地下暗河乘船）、关门山森林氧吧", distance: "约 90 km", coords: [41.2965, 124.0864], tips: "乘船穿行世界最长充水溶洞，常年恒温12度，建议带外套。" },
+          { day: "D8", node: "本溪 ➔ 丹东", spots: "鸭绿江断桥、虎山长城（中朝边境风貌）", distance: "约 180 km", coords: [40.1170, 124.3941], tips: "站在断桥近距离遥望异国江岸，登明长城东端起点虎山长城一步跨。" },
+          { day: "D9", node: "丹东 ➔ 沈阳", spots: "下午打卡 沈阳故宫、张氏帅府，晚上中街美食", distance: "约 220 km", coords: [41.7963, 123.4532], tips: "品味关外盛京一朝发祥地，中街品尝老边饺子与沈阳鸡架。" },
+          { day: "D10", node: "沈阳近郊", spots: "游览 棋盘山风景区（秀湖、森林野生动物园）", distance: "约 30 km", coords: [41.9392, 123.6823], tips: "秀湖环湖游览，享受森林鲜氧，慢节奏休整。" },
+          { day: "D11", node: "沈阳 ➔ 秦皇岛", spots: "辽西走廊直返秦皇岛海边，晚上吹海风吃海鲜", distance: "约 400 km", coords: [39.9354, 119.6005], tips: "高速路况良好，傍晚抵达秦皇岛吹海风、吃皮皮虾与蒸汽海鲜。" },
+          { day: "D12", node: "秦皇岛", spots: "山海关（天下第一关）、老龙头（长城入海）", distance: "约 40 km", coords: [40.0076, 119.7562], tips: "领略两京锁钥无双地，万里长城第一关的巍峨气魄。" },
+          { day: "D13", node: "秦皇岛", spots: "北戴河海滨、鸽子窝公园（看日出、湿地观鸟）", distance: "约 30 km", coords: [39.8335, 119.5312], tips: "清晨在鸽子窝大潮坪看红日浴海，海滨漫步惬意悠闲。" },
+          { day: "D14", node: "秦皇岛 ➔ 天津蓟州", spots: "游览乾隆最爱的 盘山风景区", distance: "约 180 km", coords: [40.0934, 117.2608], tips: "早知有盘山，何必下江南！松、石、峰、寺层次分明。" },
+          { day: "D15", node: "蓟州 ➔ 北京", spots: "沿津蓟高速轻松返京，结束环线", distance: "约 100 km", coords: [39.9042, 116.4074], tips: "满载辽东海陆记忆顺利抵京，完美闭环。" }
+        ]
+      },
+      2: {
+        id: 2,
+        title: "方案二：16天 草原森林与地质奇观大环线",
+        badge: "草原林海 + 冰川石林",
+        color: "#10b981",
+        glowColor: "#34d399",
+        strokeClass: "route-path-r2",
+        desc: "自然风貌极致多样的梦幻线路！横跨燕山、塞罕坝浩瀚林海、乌兰布统大草原、阿斯哈图冰川石林、辽东千山水洞与太行白石山。",
+        totalDays: 16,
+        totalKm: 2200,
+        spotCount: 20,
+        provinces: "京、冀、蒙、辽",
+        days: [
+          { day: "D1", node: "北京 ➔ 滦平", spots: "金山岭长城（徒步观落日）", distance: "约 130 km", coords: [40.6769, 117.2471], tips: "金山岭视野极开阔，是摄影与日落爱好者的殿堂。" },
+          { day: "D2", node: "滦平 ➔ 承德", spots: "承德避暑山庄、小布达拉宫", distance: "约 110 km", coords: [40.9880, 117.9392], tips: "康乾盛世避暑圣地，湖光山色融为一体。" },
+          { day: "D3", node: "承德 ➔ 围场", spots: "穿越 木兰围场、塞罕坝国家森林公园 林海", distance: "约 190 km", coords: [42.4116, 117.2519], tips: "百万亩人工林海，风车林立，秋季层林尽染。" },
+          { day: "D4", node: "塞罕坝 ➔ 乌兰布统", spots: "深度游览 乌兰布统草原（丘陵草甸、白桦林）", distance: "约 40 km", coords: [42.5938, 117.2415], tips: "丘陵式草原景观，影视基地、蛤蟆坝白桦林与骏马成群。" },
+          { day: "D5", node: "乌兰布统 ➔ 赤峰", spots: "探访第四纪冰川奇观 阿斯哈图石林", distance: "约 280 km", coords: [43.9482, 117.4721], tips: "世界罕见的花岗岩冰石林，形态似城堡与塔林。" },
+          { day: "D6", node: "赤峰 ➔ 锦州", spots: "游览辽西名山 医巫闾山", distance: "约 270 km", coords: [41.6062, 121.7335], tips: "从内蒙古高原俯冲进入辽西走廊，感受千载名山底蕴。" },
+          { day: "D7", node: "锦州 ➔ 盘锦", spots: "漫步 笔架山，下午打卡 盘锦红海滩 湿地", distance: "约 110 km", coords: [40.9790, 121.8021], tips: "领略海滩红毯奇景与丹顶鹤黑嘴鸥的栖息乐园。" },
+          { day: "D8", node: "盘锦 ➔ 鞍山", spots: "登 千山风景区（弥勒大佛与奇峰古刹）", distance: "约 110 km", coords: [41.0264, 123.1362], tips: "一步一景，群峰叠翠，天然巨佛栩栩如生。" },
+          { day: "D9", node: "鞍山 ➔ 本溪", spots: "游览 本溪水洞、关门山 峡谷红叶", distance: "约 90 km", coords: [41.2965, 124.0864], tips: "神奇的地下龙宫与东北小黄山关门山美景。" },
+          { day: "D10", node: "本溪 ➔ 沈阳", spots: "上午 沈阳故宫、大帅府，下午 棋盘山 环湖", distance: "约 80 km", coords: [41.7963, 123.4532], tips: "关外第一宫大政殿十王亭，近看民国风云大帅府。" },
+          { day: "D11", node: "沈阳 ➔ 兴城", spots: "漫步我国保存最完好的明代卫城 兴城古城", distance: "约 250 km", coords: [40.6186, 120.7107], tips: "十字古街、钟鼓楼与督师府，触摸袁崇焕抗清历史。" },
+          { day: "D12", node: "兴城 ➔ 山海关", spots: "游览 山海关 与长城入海处 老龙头", distance: "约 140 km", coords: [40.0076, 119.7562], tips: "万里长城从燕山蜿蜒而下，在此探入滔滔渤海。" },
+          { day: "D13", node: "秦皇岛", spots: "北戴河海滨、鸽子窝公园 休闲放空", distance: "约 30 km", coords: [39.8335, 119.5312], tips: "海风拂面，享受海滨度假慢时光。" },
+          { day: "D14", node: "秦皇岛 ➔ 蓟州", spots: "登京东第一名山 盘山", distance: "约 180 km", coords: [40.0934, 117.2608], tips: "下盘水胜、中盘石胜、上盘松胜，三盘暮雨绝景。" },
+          { day: "D15", node: "蓟州 ➔ 涞源", spots: "前往太行山脉，体验北方张家界 白石山", distance: "约 220 km", coords: [39.3364, 114.6865], tips: "全国唯一的大理岩峰林地貌，云海佛光与双雄石绝壁栈道。" },
+          { day: "D16", node: "涞源 ➔ 北京", spots: "沿京蔚高速轻松返京", distance: "约 200 km", coords: [39.9042, 116.4074], tips: "完成跨越京冀蒙辽四省的超级自然地貌巡礼！" }
+        ]
+      },
+      3: {
+        id: 3,
+        title: "方案三：15天 关东名胜+华北圣山跨省大环线",
+        badge: "文化探寻 + 佛宗五岳",
+        color: "#f59e0b",
+        glowColor: "#fbbf24",
+        strokeClass: "route-path-r3",
+        desc: "不仅涵盖关外辽沈边境精华，后半段更南切太行与齐鲁大地，朝拜佛教圣地五台山，登顶五岳独尊泰山，文化分量极其厚重。",
+        totalDays: 15,
+        totalKm: 2700,
+        spotCount: 22,
+        provinces: "京、冀、辽、晋、鲁",
+        days: [
+          { day: "D1", node: "北京 ➔ 承德", spots: "避暑山庄、外八庙", distance: "约 230 km", coords: [40.9880, 117.9392], tips: "清晨北京出发，午后游避暑山庄，感受塞外皇家气度。" },
+          { day: "D2", node: "承德 ➔ 秦皇岛", spots: "翻越燕山，游览 山海关、老龙头", distance: "约 210 km", coords: [40.0076, 119.7562], tips: "走承秦高速穿燕山山脉直达天下第一关。" },
+          { day: "D3", node: "秦皇岛 ➔ 兴城", spots: "上午 北戴河鸽子窝，下午 兴城古城", distance: "约 150 km", coords: [40.6186, 120.7107], tips: "赏红日出海，下午步入沧桑的宁远古城墙。" },
+          { day: "D4", node: "兴城 ➔ 盘锦", spots: "潮汐奇观 笔架山 + 盘锦红海滩", distance: "约 120 km", coords: [40.9790, 121.8021], tips: "天桥奇观与红色湿地廊道绝美落日。" },
+          { day: "D5", node: "盘锦 ➔ 鞍山/本溪", spots: "登 千山，夜宿本溪", distance: "约 150 km", coords: [41.0264, 123.1362], tips: "体验东北名山千山之秀美，晚间转至本溪品本溪羊汤。" },
+          { day: "D6", node: "本溪 ➔ 沈阳", spots: "上午游 本溪水洞，下午游 沈阳故宫", distance: "约 80 km", coords: [41.7963, 123.4532], tips: "水洞探秘后直达盛京沈阳故宫打卡。" },
+          { day: "D7", node: "沈阳 ➔ 丹东", spots: "鸭绿江断桥，近距离感受边境江景", distance: "约 220 km", coords: [40.1170, 124.3941], tips: "看弹痕累累的断桥与辽阔鸭绿江两岸对比。" },
+          { day: "D8", node: "丹东 ➔ 盘锦/葫芦岛", spots: "沿海返程，休整过渡，品尝渤海湾海鲜", distance: "约 300 km", coords: [40.7111, 120.8369], tips: "中途休整过渡段，尽情享用辽西海鲜大餐。" },
+          { day: "D9", node: "葫芦岛 ➔ 天津蓟州", spots: "游览 盘山风景名胜区", distance: "约 260 km", coords: [40.0934, 117.2608], tips: "登京东第一名山盘山，探访古松名泉。" },
+          { day: "D10", node: "蓟州 ➔ 保定涞源", spots: "体验 白石山 峰林云海与高空悬崖栈道", distance: "约 220 km", coords: [39.3364, 114.6865], tips: "奇峰绝壁，太行之巅的雄浑壮丽。" },
+          { day: "D11", node: "涞源 ➔ 忻州五台山", spots: "游览佛教圣地 五台山（菩萨顶、显通寺）", distance: "约 130 km", coords: [39.0142, 113.5937], tips: "中国四大佛教名山之首，文殊菩萨道场，殿宇庄严。" },
+          { day: "D12", node: "五台山深度游", spots: "登台顶观高山草甸、感受佛道禅意", distance: "约 40 km", coords: [39.0450, 113.5850], tips: "登北台或东台看云海日出，体验清凉圣境。" },
+          { day: "D13", node: "五台山 ➔ 泰安", spots: "驱车向东南直达泰安，晚间准备登泰山", distance: "约 380 km", coords: [36.1950, 117.1200], tips: "横跨太行山东出华北平原直抵泰山脚下。" },
+          { day: "D14", node: "泰安 ➔ 济南/德州", spots: "登五岳之首 泰山（中天门、南天门、日观峰）", distance: "约 120 km", coords: [36.2558, 117.1065], tips: "会当凌绝顶，一览众山小！登顶五岳独尊玉皇顶。" },
+          { day: "D15", node: "德州 ➔ 北京", spots: "京台高速直驱返京", distance: "约 300 km", coords: [39.9042, 116.4074], tips: "京台高速平坦宽阔，满载关东与齐鲁圣山回忆顺利返京！" }
+        ]
+      }
+    };
+
+    // State
+    let currentRouteId = 1;
+    let isCompareMode = false;
+    let map = null;
+    let routeLayers = {};
+    let markerLayers = {};
+    let animTimer = null;
+    let animStep = 0;
+
+    // Tile Layers
+    const TILE_SOURCES = {
+      dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+      }),
+      satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        attribution: '&copy; Esri &mdash; Earthstar Geographics'
+      }),
+      light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+      })
+    };
+    let currentTileLayer = TILE_SOURCES.dark;
+
+    // Init Map
+    function initMap() {
+      map = L.map('map', {
+        center: [41.2, 120.5],
+        zoom: 6,
+        zoomControl: false
+      });
+
+      // Custom Zoom Control at Bottom Right
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      // Add Base Layer
+      currentTileLayer.addTo(map);
+
+      // Draw all routes into memory
+      Object.keys(ROUTES_DATA).forEach(id => {
+        buildRouteGraphics(ROUTES_DATA[id]);
+      });
+
+      // Initial Display Route 1
+      selectRoute(1);
+    }
+
+    // Generate graphics for a route
+    function buildRouteGraphics(route) {
+      const latlngs = route.days.map(d => d.coords);
+
+      // Outer glow line
+      const glowLine = L.polyline(latlngs, {
+        color: route.color,
+        weight: 8,
+        opacity: 0.35,
+        lineCap: 'round',
+        lineJoin: 'round'
+      });
+
+      // Main inner dashed animated line
+      const mainLine = L.polyline(latlngs, {
+        color: route.color,
+        weight: 3.5,
+        opacity: 0.95,
+        className: route.strokeClass,
+        lineCap: 'round',
+        lineJoin: 'round'
+      });
+
+      const lineGroup = L.featureGroup([glowLine, mainLine]);
+      routeLayers[route.id] = lineGroup;
+
+      // Waypoint Markers
+      const markersGroup = L.featureGroup();
+      route.days.forEach((d, idx) => {
+        const isStartOrEnd = (idx === 0 || idx === route.days.length - 1);
+        const markerBg = isStartOrEnd ? '#f43f5e' : route.color;
+        
+        const html = `
+          <div class="custom-waypoint-marker ${isStartOrEnd ? 'pulse-dot' : ''}" style="background: ${markerBg}; color: #0b0f19; width: ${isStartOrEnd ? '28px' : '22px'}; height: ${isStartOrEnd ? '28px' : '22px'}; border: 2px solid #ffffff;">
+            ${d.day}
+          </div>
+        `;
+
+        const icon = L.divIcon({
+          html: html,
+          className: '',
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
+
+        const marker = L.marker(d.coords, { icon: icon });
+
+        // Popup Content
+        const popupHtml = `
+          <div class="p-2 space-y-1.5 min-w-[220px]">
+            <div class="flex items-center justify-between border-b border-slate-700/80 pb-1">
+              <span class="font-bold text-sm" style="color: ${route.color}">${d.day} · ${d.node}</span>
+              <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">${d.distance}</span>
+            </div>
+            <div class="text-xs font-medium text-slate-100">
+              <i class="inline-block w-2 h-2 rounded-full mr-1" style="background: ${route.color}"></i>
+              ${d.spots}
+            </div>
+            <div class="text-[11px] text-slate-400 bg-slate-900/60 p-1.5 rounded border border-slate-800/80 leading-relaxed">
+              💡 ${d.tips}
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupHtml);
+
+        marker.on('click', () => {
+          highlightSidebarDay(d.day);
+        });
+
+        markersGroup.addLayer(marker);
+      });
+
+      markerLayers[route.id] = markersGroup;
+    }
+
+    // Switch Route
+    function selectRoute(routeId) {
+      stopAnimation();
+      isCompareMode = false;
+      currentRouteId = routeId;
+      const route = ROUTES_DATA[routeId];
+
+      // Update Tabs UI
+      document.querySelectorAll('.route-tab').forEach((tab, index) => {
+        const id = index + 1;
+        if (id === routeId) {
+          tab.className = `route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 shadow-md`;
+          if (id === 1) tab.classList.add('bg-cyan-500', 'text-slate-950');
+          if (id === 2) tab.classList.add('bg-emerald-500', 'text-slate-950');
+          if (id === 3) tab.classList.add('bg-amber-500', 'text-slate-950');
+        } else {
+          tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200';
+        }
+      });
+
+      // Update Compare button styling
+      const compBtn = document.getElementById('compareAllBtn');
+      compBtn.classList.remove('bg-indigo-600', 'text-white');
+      compBtn.classList.add('bg-indigo-500/20', 'text-indigo-300');
+
+      // Update Summary Header
+      document.getElementById('currentRouteTitle').textContent = route.title;
+      document.getElementById('currentRouteTitle').style.color = route.color;
+      document.getElementById('currentRouteTag').textContent = `约 ${route.totalKm} km`;
+      document.getElementById('currentRouteDesc').textContent = route.desc;
+      document.getElementById('statDays').textContent = `${route.totalDays} 天`;
+      document.getElementById('statKm').textContent = `~${route.totalKm} km`;
+      document.getElementById('statSpots').textContent = `${route.spotCount} 处`;
+      document.getElementById('statProvinces').textContent = route.provinces;
+
+      // Clear other layers and add current
+      Object.keys(ROUTES_DATA).forEach(id => {
+        if (map.hasLayer(routeLayers[id])) map.removeLayer(routeLayers[id]);
+        if (map.hasLayer(markerLayers[id])) map.removeLayer(markerLayers[id]);
+      });
+
+      routeLayers[routeId].addTo(map);
+      markerLayers[routeId].addTo(map);
+
+      // Fit map bounds to current route
+      map.fitBounds(routeLayers[routeId].getBounds(), { padding: [40, 40] });
+
+      // Render Itinerary List
+      renderItineraryList(route);
+    }
+
+    // Compare All Routes
+    function compareAllRoutes() {
+      stopAnimation();
+      isCompareMode = true;
+
+      document.querySelectorAll('.route-tab').forEach(tab => {
+        tab.className = 'route-tab px-2 py-2 rounded-lg font-medium transition text-center flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200';
+      });
+
+      const compBtn = document.getElementById('compareAllBtn');
+      compBtn.classList.add('bg-indigo-600', 'text-white');
+      compBtn.classList.remove('bg-indigo-500/20', 'text-indigo-300');
+
+      document.getElementById('currentRouteTitle').textContent = "全景对比：3大环线同屏纵览";
+      document.getElementById('currentRouteTitle').style.color = "#a5b4fc";
+      document.getElementById('currentRouteTag').textContent = "3条独立方案";
+      document.getElementById('currentRouteDesc').textContent = "青色为方案一（15天山海边境），翠绿为方案二（16天草原石林），金黄为方案三（15天五台泰山名山）。";
+      document.getElementById('statDays').textContent = "15-16天";
+      document.getElementById('statKm').textContent = "2000-2700";
+      document.getElementById('statSpots').textContent = "40+ 处";
+      document.getElementById('statProvinces').textContent = "6 省市";
+
+      // Add all layers
+      const allBounds = L.latLngBounds([]);
+      Object.keys(ROUTES_DATA).forEach(id => {
+        routeLayers[id].addTo(map);
+        markerLayers[id].addTo(map);
+        allBounds.extend(routeLayers[id].getBounds());
+      });
+
+      map.fitBounds(allBounds, { padding: [50, 50] });
+
+      // Render Comparison Tab in sidebar
+      const listContainer = document.getElementById('itineraryList');
+      listContainer.innerHTML = `
+        <div class="space-y-3">
+          ${[1, 2, 3].map(id => {
+            const r = ROUTES_DATA[id];
+            return `
+              <div class="p-3.5 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 cursor-pointer transition" onclick="selectRoute(${id})">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full" style="background: ${r.color}"></span>
+                    <span class="font-bold text-sm text-slate-100">${r.title}</span>
+                  </div>
+                  <span class="text-xs font-mono font-bold" style="color: ${r.color}">~${r.totalKm} km</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">${r.desc}</p>
+                <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-300 pt-2 border-t border-slate-700/50">
+                  <span>共 ${r.totalDays} 天 · ${r.spotCount} 景点</span>
+                  <span class="text-indigo-400 font-semibold flex items-center gap-1">点击查看此方案 <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // Render Itinerary Items
+    function renderItineraryList(route) {
+      const container = document.getElementById('itineraryList');
+      container.innerHTML = '';
+
+      route.days.forEach((d, index) => {
+        const item = document.createElement('div');
+        item.id = `itinerary-day-${d.day}`;
+        item.className = 'group p-3 rounded-xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800/90 hover:border-slate-700 cursor-pointer transition duration-200';
+        
+        item.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md font-mono" style="background: ${route.color}22; color: ${route.color}; border: 1px solid ${route.color}44;">
+                ${d.day}
+              </span>
+              <h3 class="text-xs font-semibold text-slate-200 group-hover:text-white transition">${d.node}</h3>
+            </div>
+            <span class="text-[10px] font-mono text-slate-400 shrink-0">${d.distance}</span>
+          </div>
+
+          <div class="mt-1.5 text-xs text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" style="color: ${route.color}"></i>
+            <span class="truncate">${d.spots}</span>
+          </div>
+
+          <div class="mt-2 text-[11px] text-slate-400 bg-slate-900/50 p-2 rounded-lg border border-slate-800/60 leading-relaxed group-hover:text-slate-300 transition">
+            💡 ${d.tips}
+          </div>
+        `;
+
+        item.addEventListener('click', () => {
+          map.flyTo(d.coords, 10, { duration: 1.2 });
+          
+          // Open popup for marker
+          const markers = markerLayers[route.id].getLayers();
+          if (markers[index]) {
+            markers[index].openPopup();
+          }
+
+          highlightSidebarDay(d.day);
+        });
+
+        container.appendChild(item);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Highlight day in sidebar
+    function highlightSidebarDay(day) {
+      document.querySelectorAll('#itineraryList > div').forEach(el => {
+        el.classList.remove('ring-2', 'ring-cyan-400', 'bg-slate-800');
+      });
+      const target = document.getElementById(`itinerary-day-${day}`);
+      if (target) {
+        target.classList.add('ring-2', 'ring-cyan-400', 'bg-slate-800');
+        target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // Animation: Play Tour along the route
+    function startAnimation() {
+      if (isCompareMode) selectRoute(1);
+      const route = ROUTES_DATA[currentRouteId];
+      const markers = markerLayers[currentRouteId].getLayers();
+
+      const hud = document.getElementById('animHud');
+      const hudDay = document.getElementById('animHudDay');
+      hud.classList.remove('hidden');
+
+      const playBtn = document.getElementById('playAnimationBtn');
+      playBtn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5"></i> <span>暂停漫游</span>`;
+      playBtn.classList.replace('bg-emerald-600/20', 'bg-amber-600/20');
+      playBtn.classList.replace('text-emerald-300', 'text-amber-300');
+      playBtn.classList.replace('border-emerald-500/40', 'border-amber-500/40');
+      lucide.createIcons();
+
+      animStep = 0;
+
+      function step() {
+        if (animStep >= route.days.length) {
+          stopAnimation();
+          map.fitBounds(routeLayers[currentRouteId].getBounds(), { padding: [40, 40] });
+          return;
+        }
+
+        const d = route.days[animStep];
+        hudDay.textContent = `${d.day} · ${d.node}`;
+        map.flyTo(d.coords, 9, { duration: 1.2 });
+
+        if (markers[animStep]) {
+          markers[animStep].openPopup();
+        }
+        highlightSidebarDay(d.day);
+
+        animStep++;
+        animTimer = setTimeout(step, 3000);
+      }
+
+      step();
+    }
+
+    function stopAnimation() {
+      if (animTimer) {
+        clearTimeout(animTimer);
+        animTimer = null;
+      }
+      const hud = document.getElementById('animHud');
+      if (hud) hud.classList.add('hidden');
+
+      const playBtn = document.getElementById('playAnimationBtn');
+      if (playBtn) {
+        playBtn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i> <span>漫游轨迹回放</span>`;
+        playBtn.classList.replace('bg-amber-600/20', 'bg-emerald-600/20');
+        playBtn.classList.replace('text-amber-300', 'text-emerald-300');
+        playBtn.classList.replace('border-amber-500/40', 'border-emerald-500/40');
+        lucide.createIcons();
+      }
+    }
+
+    // Setup Event Listeners
+    function setupEventListeners() {
+      // Route Tabs
+      document.getElementById('tabRoute1').addEventListener('click', () => selectRoute(1));
+      document.getElementById('tabRoute2').addEventListener('click', () => selectRoute(2));
+      document.getElementById('tabRoute3').addEventListener('click', () => selectRoute(3));
+      document.getElementById('compareAllBtn').addEventListener('click', compareAllRoutes);
+
+      // Play / Pause Animation
+      document.getElementById('playAnimationBtn').addEventListener('click', () => {
+        if (animTimer) {
+          stopAnimation();
+        } else {
+          startAnimation();
+        }
+      });
+      document.getElementById('stopAnimBtn').addEventListener('click', stopAnimation);
+
+      // Fit Route
+      document.getElementById('fitRouteBtn').addEventListener('click', () => {
+        if (isCompareMode) {
+          const allBounds = L.latLngBounds([]);
+          Object.keys(ROUTES_DATA).forEach(id => allBounds.extend(routeLayers[id].getBounds()));
+          map.fitBounds(allBounds, { padding: [50, 50] });
+        } else {
+          map.fitBounds(routeLayers[currentRouteId].getBounds(), { padding: [40, 40] });
+        }
+      });
+
+      // Tile Switcher
+      const switchTile = (type, btn) => {
+        map.removeLayer(currentTileLayer);
+        currentTileLayer = TILE_SOURCES[type];
+        currentTileLayer.addTo(map);
+
+        ['tileDarkBtn', 'tileSatBtn', 'tileLightBtn'].forEach(id => {
+          const b = document.getElementById(id);
+          b.className = 'px-2.5 py-1 rounded font-medium text-slate-300 hover:text-white transition';
+        });
+        btn.className = 'px-2.5 py-1 rounded font-medium bg-cyan-500 text-slate-950 transition shadow';
+      };
+
+      document.getElementById('tileDarkBtn').addEventListener('click', function() { switchTile('dark', this); });
+      document.getElementById('tileSatBtn').addEventListener('click', function() { switchTile('satellite', this); });
+      document.getElementById('tileLightBtn').addEventListener('click', function() { switchTile('light', this); });
+
+      // Mobile Sidebar Toggle
+      const sidebar = document.getElementById('sidebarPanel');
+      document.getElementById('toggleSidebarBtn').addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+      });
+
+      // Spot Search
+      document.getElementById('spotSearchInput').addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        if (!query) return;
+
+        let found = false;
+        // Search in current route first, then others
+        const currentRoute = ROUTES_DATA[currentRouteId];
+        currentRoute.days.forEach((d, idx) => {
+          if (!found && (d.spots.toLowerCase().includes(query) || d.node.toLowerCase().includes(query))) {
+            found = true;
+            map.flyTo(d.coords, 10, { duration: 1 });
+            const markers = markerLayers[currentRouteId].getLayers();
+            if (markers[idx]) markers[idx].openPopup();
+            highlightSidebarDay(d.day);
+          }
+        });
+
+        if (!found) {
+          // Check all routes
+          Object.keys(ROUTES_DATA).forEach(id => {
+            if (found) return;
+            ROUTES_DATA[id].days.forEach((d) => {
+              if (!found && (d.spots.toLowerCase().includes(query) || d.node.toLowerCase().includes(query))) {
+                found = true;
+                selectRoute(parseInt(id));
+                setTimeout(() => {
+                  map.flyTo(d.coords, 10, { duration: 1 });
+                  highlightSidebarDay(d.day);
+                }, 300);
+              }
+            });
+          });
+        }
+      });
+    }
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      setupEventListeners();
+    });
+  </script>
+</body>
+</html>
