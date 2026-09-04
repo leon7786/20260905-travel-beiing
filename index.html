@@ -46,7 +46,6 @@
       --sidebar-width: 390px;
     }
 
-    /* Prevent any horizontal overflow */
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -60,7 +59,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Dynamic viewport height fallback for iOS Safari and modern mobile browsers */
     .full-viewport-height {
       height: 100vh;
       height: 100dvh;
@@ -167,11 +165,7 @@
       100% { transform: scale(2.2); opacity: 0; }
     }
 
-    /* ========================================================= */
-    /* CSS Media Queries for Responsive Typography & Layouts     */
-    /* ========================================================= */
-
-    /* 1. Large Screens & PC (>= 1024px) */
+    /* Media queries */
     @media (min-width: 1024px) {
       :root {
         --header-height: 60px;
@@ -181,7 +175,6 @@
       .desktop-only { display: flex !important; }
     }
 
-    /* 2. iPad Landscape & Medium Screens (769px - 1023px) */
     @media (min-width: 769px) and (max-width: 1023px) {
       :root {
         --header-height: 56px;
@@ -192,7 +185,6 @@
       .hide-on-ipad { display: none !important; }
     }
 
-    /* 3. iPad Portrait & Mobile Phones (<= 768px) */
     @media (max-width: 768px) {
       :root {
         --header-height: 54px;
@@ -201,7 +193,6 @@
       .desktop-only { display: none !important; }
       .mobile-only { display: flex !important; }
 
-      /* Sidebar transforms into full-height offcanvas drawer */
       #sidebarPanel {
         position: fixed;
         top: 0;
@@ -213,7 +204,6 @@
         box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
       }
 
-      /* Zoom controls relocation on mobile */
       .leaflet-bottom.leaflet-right {
         bottom: 74px !important;
         right: 12px !important;
@@ -231,7 +221,6 @@
       }
     }
 
-    /* 4. Small Mobile Phones (iPhone SE / Android <= 430px) */
     @media (max-width: 430px) {
       :root {
         --header-height: 50px;
@@ -271,11 +260,23 @@
       </div>
     </div>
 
-    <!-- Right: Controls -->
+    <!-- Center/Right: Nav Tabs & Controls -->
     <div class="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
+
+      <!-- Page Switcher Tabs -->
+      <nav class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs shrink-0">
+        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white text-sky-700 font-bold shadow-sm transition flex items-center gap-1 border border-sky-100">
+          <i data-lucide="map" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span>路线地图</span>
+        </a>
+        <a href="attractions.html" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 font-medium transition flex items-center gap-1">
+          <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+          <span>景区图鉴</span>
+        </a>
+      </nav>
       
       <!-- Desktop & iPad Search Input -->
-      <div class="relative hidden sm:block w-36 md:w-48 lg:w-60">
+      <div class="relative hidden sm:block w-32 md:w-44 lg:w-56">
         <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"></i>
         <input 
           id="spotSearchInput"
@@ -359,6 +360,21 @@
 
       <!-- Route Selector Box -->
       <div class="p-3 sm:p-4 border-b border-slate-200 shrink-0 space-y-2.5 bg-white">
+        
+        <!-- Attractions Directory Quick Card -->
+        <a href="attractions.html" class="p-2 rounded-xl bg-gradient-to-r from-sky-50 to-teal-50 border border-sky-200/70 flex items-center justify-between hover:shadow-xs transition group">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="w-6 h-6 rounded-lg bg-sky-600 text-white flex items-center justify-center shrink-0 text-xs">
+              <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+            </span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-sky-900 truncate">20 大核心景区风貌图鉴</div>
+              <div class="text-[10px] text-sky-600 truncate">点击查阅省份分布与风景分类</div>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-sky-500 group-hover:translate-x-0.5 transition shrink-0"></i>
+        </a>
+
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold uppercase tracking-wider text-slate-500">规划方案选择</span>
           <button id="compareAllBtn" class="text-xs px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition flex items-center gap-1 font-semibold shadow-sm active:scale-95">
@@ -1032,6 +1048,40 @@
       if (menu) menu.classList.add('hidden');
     }
 
+    // Unified Search Function
+    function handleSearch(query) {
+      query = (query || '').trim().toLowerCase();
+      if (!query) return;
+
+      let found = false;
+      const currentRoute = ROUTES_DATA[currentRouteId];
+      currentRoute.days.forEach((d, idx) => {
+        if (!found && (d.spots.toLowerCase().includes(query) || d.node.toLowerCase().includes(query))) {
+          found = true;
+          map.flyTo(d.coords, 10, { duration: 1 });
+          const markers = markerLayers[currentRouteId].getLayers();
+          if (markers[idx]) markers[idx].openPopup();
+          highlightSidebarDay(d.day);
+        }
+      });
+
+      if (!found) {
+        Object.keys(ROUTES_DATA).forEach(id => {
+          if (found) return;
+          ROUTES_DATA[id].days.forEach((d) => {
+            if (!found && (d.spots.toLowerCase().includes(query) || d.node.toLowerCase().includes(query))) {
+              found = true;
+              selectRoute(parseInt(id));
+              setTimeout(() => {
+                map.flyTo(d.coords, 10, { duration: 1 });
+                highlightSidebarDay(d.day);
+              }, 300);
+            }
+          });
+        });
+      }
+    }
+
     // Setup Event Listeners
     function setupEventListeners() {
       // Route Tabs
@@ -1102,40 +1152,6 @@
         mobileSearchWrapper.classList.add('hidden');
       });
 
-      // Unified Search Function
-      const handleSearch = (query) => {
-        query = query.trim().toLowerCase();
-        if (!query) return;
-
-        let found = false;
-        const currentRoute = ROUTES_DATA[currentRouteId];
-        currentRoute.days.forEach((d, idx) => {
-          if (!found && (d.spots.toLowerCase().includes(query) || d.node.toLowerCase().includes(query))) {
-            found = true;
-            map.flyTo(d.coords, 10, { duration: 1 });
-            const markers = markerLayers[currentRouteId].getLayers();
-            if (markers[idx]) markers[idx].openPopup();
-            highlightSidebarDay(d.day);
-          }
-        });
-
-        if (!found) {
-          Object.keys(ROUTES_DATA).forEach(id => {
-            if (found) return;
-            ROUTES_DATA[id].days.forEach((d) => {
-              if (!found && (d.spots.toLowerCase().includes(query) || d.node.toLowerCase().includes(query))) {
-                found = true;
-                selectRoute(parseInt(id));
-                setTimeout(() => {
-                  map.flyTo(d.coords, 10, { duration: 1 });
-                  highlightSidebarDay(d.day);
-                }, 300);
-              }
-            });
-          });
-        }
-      };
-
       document.getElementById('spotSearchInput').addEventListener('input', (e) => handleSearch(e.target.value));
       document.getElementById('mobileSpotSearchInput').addEventListener('input', (e) => handleSearch(e.target.value));
 
@@ -1152,6 +1168,15 @@
     window.addEventListener('DOMContentLoaded', () => {
       initMap();
       setupEventListeners();
+
+      // Check URL search parameter e.g. ?spot=xxx
+      const params = new URLSearchParams(window.location.search);
+      const spotParam = params.get('spot');
+      if (spotParam) {
+        setTimeout(() => {
+          handleSearch(spotParam);
+        }, 500);
+      }
     });
   </script>
 </body>

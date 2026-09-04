@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>核心景区与风貌图鉴 · 2026 北京自驾大环线</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+            }
+          },
+          screens: {
+            'xs': '420px',
+            'sm': '640px',
+            'md': '768px',
+            'ipad': '834px',
+            'lg': '1024px',
+            'xl': '1280px',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden !important;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans select-none antialiased">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 h-14 sm:h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <a href="index.html" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center shadow-sm text-white shrink-0 hover:opacity-90 transition">
+        <i data-lucide="map-pin" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </a>
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span class="font-bold text-xs xs:text-sm sm:text-base text-slate-900 tracking-tight truncate">北京自驾大环线</span>
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 shrink-0">景区图鉴</span>
+        </div>
+        <p class="text-[11px] text-slate-400 hidden md:block">涵盖 20 大核心风景名胜区 · 详细分级与景观分类</p>
+      </div>
+    </div>
+
+    <!-- Center/Right Navigation Switcher -->
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <nav class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+        <a href="index.html" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 font-medium transition flex items-center gap-1">
+          <i data-lucide="map" class="w-3.5 h-3.5"></i>
+          <span>路线地图</span>
+        </a>
+        <a href="attractions.html" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white text-sky-700 font-bold shadow-sm transition flex items-center gap-1 border border-sky-100">
+          <i data-lucide="compass" class="w-3.5 h-3.5 text-sky-600"></i>
+          <span>景区图鉴</span>
+        </a>
+      </nav>
+
+      <!-- GitHub Link -->
+      <a href="https://github.com/leon7786/20260905-travel-beiing" target="_blank" class="p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition shadow-sm" title="查看 GitHub 仓库">
+        <i data-lucide="github" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Header & Filter Section -->
+  <section class="bg-gradient-to-b from-white to-slate-50 border-b border-slate-200/80 px-3 sm:px-6 py-5 sm:py-8">
+    <div class="max-w-6xl mx-auto space-y-4">
+      
+      <!-- Title & Headline -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-semibold mb-2">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            北境环线精选风景名胜
+          </div>
+          <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">核心景区与子景点全景名录</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
+            涵盖冀、辽、蒙、津、吉、鲁、晋 7 省市自治区，汇聚皇家古建、长城海塞、森林草原、冰川石林与名山圣水。
+          </p>
+        </div>
+
+        <!-- Search Box -->
+        <div class="relative w-full md:w-72 shrink-0">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+          <input 
+            id="spotSearchInput"
+            type="text" 
+            placeholder="搜索景区、子景点或景观类型..." 
+            class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-8 py-2.5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 shadow-sm transition"
+          />
+          <button id="clearSearchBtn" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 p-0.5">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Stats Banner -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+        <div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+            <i data-lucide="mountain-snow" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-[10px] sm:text-xs text-slate-400 font-medium">核心景区群</div>
+            <div id="statTotalSpots" class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">20 处</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-[10px] sm:text-xs text-slate-400 font-medium">覆盖省区市</div>
+            <div class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">7 省市</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <i data-lucide="tree-pine" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-[10px] sm:text-xs text-slate-400 font-medium">生态地貌类型</div>
+            <div class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">8 大特色</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <i data-lucide="milestone" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-[10px] sm:text-xs text-slate-400 font-medium">当前筛选结果</div>
+            <div id="statFilteredCount" class="text-sm sm:text-base font-bold text-sky-700 mt-0.5">20 处</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Province Filter Bar (Horizontal Scrollable on Mobile) -->
+      <div class="space-y-2 pt-2">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">地区筛选:</span>
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs">
+            <button onclick="filterByProvince('ALL', this)" class="province-btn px-3 py-1.5 rounded-lg font-bold bg-sky-600 text-white shadow-xs shrink-0 transition">全部 (20)</button>
+            <button onclick="filterByProvince('河北', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">河北 (5)</button>
+            <button onclick="filterByProvince('辽宁', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">辽宁 (8)</button>
+            <button onclick="filterByProvince('内蒙古', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">内蒙古 (2)</button>
+            <button onclick="filterByProvince('京津 / 吉林', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">京津 / 吉林 (2)</button>
+            <button onclick="filterByProvince('山东 / 山西', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">山东 / 山西 (3)</button>
+          </div>
+        </div>
+
+        <!-- Landscape Type Filter Bar -->
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">风景类型:</span>
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs">
+            <button onclick="filterByType('ALL', this)" class="type-btn px-2.5 py-1 rounded-md font-semibold bg-slate-800 text-white shrink-0 transition">全部类型</button>
+            <button onclick="filterByType('山岳', this)" class="type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">山岳/峰林</button>
+            <button onclick="filterByType('长城', this)" class="type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">长城险关</button>
+            <button onclick="filterByType('草原', this)" class="type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">草原森林</button>
+            <button onclick="filterByType('海滨', this)" class="type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">海滨海域</button>
+            <button onclick="filterByType('湿地', this)" class="type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">湿地生态</button>
+            <button onclick="filterByType('古建', this)" class="type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">古建古城</button>
+            <button onclick="filterByType('溶洞', this)" class="type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">溶洞奇石</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Scenic Spots Grid Container -->
+  <main class="flex-1 px-3 sm:px-6 py-6 max-w-6xl mx-auto w-full">
+    <div id="spotsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+      <!-- Injected by JavaScript -->
+    </div>
+
+    <!-- Empty State for Search/Filter -->
+    <div id="emptyState" class="hidden py-16 text-center space-y-3">
+      <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
+        <i data-lucide="frown" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-700">未找到符合条件的景区</h3>
+      <p class="text-xs text-slate-400">请尝试清空筛选条件或调整搜索关键词</p>
+      <button onclick="resetFilters()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+        重置筛选条件
+      </button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-200 bg-white py-6 px-4 text-center text-xs text-slate-400 space-y-1">
+    <div>2026 北京自驾大环线 · 数字化自驾路书与景区数据库</div>
+    <div class="flex items-center justify-center gap-3 pt-1">
+      <a href="index.html" class="text-sky-600 hover:underline">返回路线地图</a>
+      <span>·</span>
+      <a href="https://github.com/leon7786/20260905-travel-beiing" target="_blank" class="text-slate-500 hover:underline">GitHub 仓库</a>
+    </div>
+  </footer>
+
+  <script>
+    // Lucide Icons
+    lucide.createIcons();
+
+    // 20 Scenic Spots Master Dataset
+    const SPOTS_DATA = [
+      // 河北
+      {
+        id: 1,
+        province: "河北",
+        fullName: "避暑山庄及外八庙（含普陀宗乘之庙、磬锤峰）",
+        shortName: "承德避暑山庄及外八庙",
+        mainSpot: "避暑山庄及外八庙",
+        subSpots: ["普陀宗乘之庙（小布达拉宫）", "磬锤峰", "须弥福寿之庙"],
+        landscapeType: "皇家园林与庙宇",
+        categoryTag: "古建",
+        coords: [40.9880, 117.9392],
+        desc: "清代皇帝避暑与处理政务的皇家园林，汇聚江南园林与塞北风光；外八庙融合汉、藏、蒙多元宗教建筑艺术。"
+      },
+      {
+        id: 2,
+        province: "河北",
+        fullName: "金山岭长城·古北水镇（含司马台长城）",
+        shortName: "金山岭长城与古北水镇",
+        mainSpot: "金山岭长城·古北水镇",
+        subSpots: ["司马台长城夜景", "古北水镇", "望京楼"],
+        landscapeType: "长城险关/水镇夜景",
+        categoryTag: "长城",
+        coords: [40.6769, 117.2471],
+        desc: "万里长城金山独秀，视野开阔敌楼密集；古北水镇依司马台长城而建，北方水乡夜色与无人机孔明灯交相辉映。"
+      },
+      {
+        id: 3,
+        province: "河北",
+        fullName: "北戴河·山海关·老龙头（含鸽子窝公园）",
+        shortName: "山海关、老龙头与北戴河",
+        mainSpot: "北戴河·山海关·老龙头",
+        subSpots: ["山海关天下第一关", "老龙头长城入海", "鸽子窝公园红日浴海"],
+        landscapeType: "海滨/长城入海口",
+        categoryTag: "海滨",
+        coords: [40.0076, 119.7562],
+        desc: "两京锁钥无双地，万里长城第一关；老龙头巍然屹立长城入海处；北戴河大潮坪看候鸟与海上红日升起。"
+      },
+      {
+        id: 4,
+        province: "河北",
+        fullName: "木兰围场·坝上草原（含塞罕坝国家森林公园）",
+        shortName: "木兰围场与塞罕坝林海",
+        mainSpot: "木兰围场·坝上草原",
+        subSpots: ["塞罕坝国家森林公园", "机械林场", "七星湖湿地"],
+        landscapeType: "森林/皇家猎苑",
+        categoryTag: "草原",
+        coords: [42.4116, 117.2519],
+        desc: "清代皇家秋狝围猎之地，百万亩人工浩瀚林海与起伏草甸相映生辉，秋季层林尽染，夏季清凉避暑。"
+      },
+      {
+        id: 5,
+        province: "河北",
+        fullName: "白石山景区",
+        shortName: "保定涞源白石山",
+        mainSpot: "白石山风景区",
+        subSpots: ["双雄石悬崖绝壁栈道", "大理岩峰林", "高空云海佛光"],
+        landscapeType: "峰林/云海地貌",
+        categoryTag: "山岳",
+        coords: [39.3364, 114.6865],
+        desc: "北方“张家界”，全国唯一的大理岩峰林地貌，太行之巅万仞悬崖，云海漫卷，漫步千米高空绝壁栈道。"
+      },
+
+      // 辽宁
+      {
+        id: 6,
+        province: "辽宁",
+        fullName: "千山风景名胜区（含弥勒大佛、无量观）",
+        shortName: "鞍山千山风景名胜区",
+        mainSpot: "千山风景名胜区",
+        subSpots: ["天然弥勒大佛", "无量观", "天上天奇峰"],
+        landscapeType: "山岳/佛道名山",
+        categoryTag: "山岳",
+        coords: [41.0264, 123.1362],
+        desc: "东北三大名山之一，释道同居一山，无峰不奇、无石不峭，天然巨型弥勒佛依山而坐，气势恢宏。"
+      },
+      {
+        id: 7,
+        province: "辽宁",
+        fullName: "本溪水洞（含关门山、枫林谷）",
+        shortName: "本溪水洞与关门山红叶",
+        mainSpot: "本溪水洞",
+        subSpots: ["地下暗河充水溶洞", "关门山国家森林公园", "枫林谷金秋红叶"],
+        landscapeType: "地下暗河/溶洞/红叶",
+        categoryTag: "溶洞",
+        coords: [41.2965, 124.0864],
+        desc: "数百万年前形成的充水溶洞，世界最长可乘船游览的地下暗河；秋季关门山漫山遍野枫叶如火，宛如童话世界。"
+      },
+      {
+        id: 8,
+        province: "辽宁",
+        fullName: "盘锦红海滩国家风景廊道",
+        shortName: "盘锦红海滩风景廊道",
+        mainSpot: "盘锦红海滩国家风景廊道",
+        subSpots: ["碱蓬草红色海岸线", "红黄稻田艺术画", "黑嘴鸥丹顶鹤湿地"],
+        landscapeType: "湿地/红色海岸线",
+        categoryTag: "湿地",
+        coords: [40.9790, 121.8021],
+        desc: "世界最辽阔的湿地红毯，每年夏秋季节碱蓬草染红整片海滩，海天一色，落日余晖下绚丽无比。"
+      },
+      {
+        id: 9,
+        province: "辽宁",
+        fullName: "棋盘山风景区（含森林动物园、关东影视城）",
+        shortName: "沈阳棋盘山风景区",
+        mainSpot: "棋盘山风景区",
+        subSpots: ["秀湖环湖游览", "沈阳森林野生动物园", "关东影视城民国街景"],
+        landscapeType: "湖光山色/休闲",
+        categoryTag: "山岳",
+        coords: [41.9392, 123.6823],
+        desc: "盛京近郊天然氧吧，秀湖水色碧波万顷，林木葱郁，集民国复古影视布景与野生动物生态于一体。"
+      },
+      {
+        id: 10,
+        province: "辽宁",
+        fullName: "兴城古城",
+        shortName: "辽宁兴城明代古城",
+        mainSpot: "兴城古城",
+        subSpots: ["宁远古城墙", "袁崇焕蓟辽督师府", "钟鼓楼与海滨温泉"],
+        landscapeType: "明代古城/海滨温泉",
+        categoryTag: "古建",
+        coords: [40.6186, 120.7107],
+        desc: "我国现存保存最完整的四座明代古城之一，明清战争关键节点宁远卫故址，城外拥享滨海浴场与天然温泉。"
+      },
+      {
+        id: 11,
+        province: "辽宁",
+        fullName: "锦州笔架山",
+        shortName: "锦州笔架山潮汐天桥",
+        mainSpot: "锦州笔架山",
+        subSpots: ["天桥神道（潮涨隐没/潮落踏浪）", "三清阁石塔", "海蚀怪石"],
+        landscapeType: "海中孤岛/自然奇观",
+        categoryTag: "海滨",
+        coords: [40.8123, 120.9782],
+        desc: "世界罕见的潮汐海中天桥奇观，一条鹅卵石天然神道随潮水退去浮出海面，可徒步踏浪涉水登岛。"
+      },
+      {
+        id: 12,
+        province: "辽宁",
+        fullName: "医巫闾山",
+        shortName: "辽西名山医巫闾山",
+        mainSpot: "医巫闾山",
+        subSpots: ["大石棚摩崖石刻", "望海寺古刹", "辽金皇家祭祀圣地"],
+        landscapeType: "东北名山/摩崖石刻",
+        categoryTag: "山岳",
+        coords: [41.6062, 121.7335],
+        desc: "古代五大镇山之北方幽州镇山，雄峙辽西走廊北翼，历代帝王祭祀与文人墨客题刻丰富，峰峦奇秀。"
+      },
+      {
+        id: 13,
+        province: "辽宁",
+        fullName: "沈阳市区人文点（沈阳故宫、张氏帅府）",
+        shortName: "沈阳故宫与张氏大帅府",
+        mainSpot: "沈阳市区人文点",
+        subSpots: ["盛京沈阳故宫大政殿十王亭", "张氏帅府大青楼", "赵一荻故居"],
+        landscapeType: "历史古建",
+        categoryTag: "古建",
+        coords: [41.7963, 123.4532],
+        desc: "关外唯一保存完整的清代皇宫建筑群，浓郁满汉藏合璧风格；张作霖与张学良父子官邸，近代东北风云枢纽。"
+      },
+
+      // 内蒙古
+      {
+        id: 14,
+        province: "内蒙古",
+        fullName: "乌兰布统草原（含公主湖、将军泡子）",
+        shortName: "克什克腾乌兰布统草原",
+        mainSpot: "乌兰布统草原",
+        subSpots: ["公主湖白桦林", "将军泡子康熙平准故地", "影视外景基地骏马"],
+        landscapeType: "丘陵草原/湖泊",
+        categoryTag: "草原",
+        coords: [42.5938, 117.2415],
+        desc: "欧式丘陵草甸的代表，草甸起伏、白桦亭亭、清泉湖泊点缀其间，光影变幻丰富，是自驾与摄影天堂。"
+      },
+      {
+        id: 15,
+        province: "内蒙古",
+        fullName: "阿斯哈图石林景区",
+        shortName: "赤峰阿斯哈图冰川花岗岩石林",
+        mainSpot: "阿斯哈图石林景区",
+        subSpots: ["第四纪冰川花岗岩石林", "七仙女峰", "九曲十八弯草甸草原"],
+        landscapeType: "冰川花岗岩石林",
+        categoryTag: "溶洞",
+        coords: [43.9482, 117.4721],
+        desc: "世界罕见的花岗岩冰石林地貌，经第四纪冰川冰盖刨蚀与风化而成，如古堡林立在海拔千米的大草原之巅。"
+      },
+
+      // 京津 / 吉林
+      {
+        id: 16,
+        province: "京津 / 吉林",
+        fullName: "盘山（天津蓟州）",
+        shortName: "天津蓟州盘山风景名胜区",
+        mainSpot: "盘山（天津蓟州）",
+        subSpots: ["三盘暮雨胜境", "入胜古松奇石", "天成寺与定光佛舍利塔"],
+        landscapeType: "山岳/古刹名山",
+        categoryTag: "山岳",
+        coords: [40.0934, 117.2608],
+        desc: "京东第一名山，乾隆盛赞“早知有盘山，何必下江南”。下盘水胜、中盘石胜、上盘松胜，三盘各具风姿。"
+      },
+      {
+        id: 17,
+        province: "京津 / 吉林",
+        fullName: "长白山·天池（吉林）",
+        shortName: "吉林长白山天池与原始森林",
+        mainSpot: "长白山·天池（吉林）",
+        subSpots: ["长白山天池高山火山湖", "聚龙温泉群", "长白飞瀑原始苔原"],
+        landscapeType: "火山湖/原始森林",
+        categoryTag: "山岳",
+        coords: [42.0041, 128.0583],
+        desc: "十六座奇峰环抱的高山休眠火山锥，十六峰竞秀，天池水碧蓝如镜；垂直植被带从针叶林延伸到极地高山苔原。"
+      },
+
+      // 山东 / 山西
+      {
+        id: 18,
+        province: "山东 / 山西",
+        fullName: "泰山风景名胜区（山东泰安）",
+        shortName: "五岳之首山东泰山",
+        mainSpot: "泰山风景名胜区",
+        subSpots: ["玉皇顶五岳独尊", "南天门十八盘", "日观峰云海日出"],
+        landscapeType: "五岳之首/名山",
+        categoryTag: "山岳",
+        coords: [36.2558, 117.1065],
+        desc: "天下第一山，世界文化与自然双重遗产，历代帝王封禅之地；登十八盘登凌绝顶，一览众山小，气魄吞吐八荒。"
+      },
+      {
+        id: 19,
+        province: "山东 / 山西",
+        fullName: "青岛崂山·滨海线（山东青岛）",
+        shortName: "青岛崂山海上名山",
+        mainSpot: "青岛崂山·滨海线",
+        subSpots: ["巨峰海上第一名山", "太清宫道家祖庭", "八仙墩奇岩海蚀"],
+        landscapeType: "海上名山/海滨",
+        categoryTag: "海滨",
+        coords: [36.1458, 120.6189],
+        desc: "“泰山虽云高，不如东海崂”，我国万里海岸线上海拔最高的第一名山，山海相依、道韵深厚、海天一色。"
+      },
+      {
+        id: 20,
+        province: "山东 / 山西",
+        fullName: "五台山风景名胜区（山西忻州）",
+        shortName: "山西忻州五台山文殊道场",
+        mainSpot: "五台山风景名胜区",
+        subSpots: ["显通寺与菩萨顶", "塔院寺白塔", "五座台顶高山草甸云海"],
+        landscapeType: "佛教名山/高山草甸",
+        categoryTag: "山岳",
+        coords: [39.0142, 113.5937],
+        desc: "中国四大佛教名山之首，文殊菩萨道场，青庙黄庙交汇并存，五峰耸立平坦如台，夏日清凉圣境。"
+      }
+    ];
+
+    // State
+    let selectedProvince = "ALL";
+    let selectedType = "ALL";
+    let searchQuery = "";
+
+    // Province badge style helper
+    function getProvinceBadgeStyle(prov) {
+      if (prov.includes("河北")) return "bg-sky-50 text-sky-700 border-sky-200";
+      if (prov.includes("辽宁")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      if (prov.includes("内蒙古")) return "bg-teal-50 text-teal-700 border-teal-200";
+      if (prov.includes("吉林") || prov.includes("京津")) return "bg-indigo-50 text-indigo-700 border-indigo-200";
+      if (prov.includes("山东") || prov.includes("山西")) return "bg-amber-50 text-amber-700 border-amber-200";
+      return "bg-slate-100 text-slate-700 border-slate-200";
+    }
+
+    // Category icon helper
+    function getCategoryIcon(cat) {
+      switch(cat) {
+        case "山岳": return "mountain";
+        case "长城": return "shield";
+        case "海滨": return "waves";
+        case "草原": return "trees";
+        case "湿地": return "droplets";
+        case "古建": return "landmark";
+        case "溶洞": return "gem";
+        default: return "compass";
+      }
+    }
+
+    // Render Cards
+    function renderSpots() {
+      const grid = document.getElementById('spotsGrid');
+      const emptyState = document.getElementById('emptyState');
+      grid.innerHTML = '';
+
+      const filtered = SPOTS_DATA.filter(item => {
+        // Province Match
+        const provMatch = (selectedProvince === "ALL" || item.province === selectedProvince);
+        // Type Match
+        const typeMatch = (selectedType === "ALL" || item.categoryTag === selectedType || item.landscapeType.includes(selectedType));
+        // Search Match
+        const searchMatch = !searchQuery || 
+          item.fullName.toLowerCase().includes(searchQuery) ||
+          item.province.toLowerCase().includes(searchQuery) ||
+          item.landscapeType.toLowerCase().includes(searchQuery) ||
+          item.desc.toLowerCase().includes(searchQuery) ||
+          item.subSpots.some(s => s.toLowerCase().includes(searchQuery));
+
+        return provMatch && typeMatch && searchMatch;
+      });
+
+      document.getElementById('statFilteredCount').textContent = `${filtered.length} 处`;
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filtered.forEach(spot => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl border border-slate-200/90 hover:border-sky-300 p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group";
+
+        const provStyle = getProvinceBadgeStyle(spot.province);
+        const iconName = getCategoryIcon(spot.categoryTag);
+
+        card.innerHTML = `
+          <div>
+            <!-- Top Tag Row -->
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-md border font-mono ${provStyle}">
+                ${spot.province}
+              </span>
+              <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 flex items-center gap-1 border border-slate-200/70">
+                <i data-lucide="${iconName}" class="w-3 h-3 text-slate-500"></i>
+                <span>${spot.landscapeType}</span>
+              </span>
+            </div>
+
+            <!-- Scenic Name -->
+            <h3 class="font-bold text-sm sm:text-base text-slate-900 group-hover:text-sky-700 transition leading-snug">
+              ${spot.fullName}
+            </h3>
+
+            <!-- Sub Spots breakdown pills -->
+            <div class="mt-2.5 flex flex-wrap gap-1.5">
+              ${spot.subSpots.map(sub => `
+                <span class="text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200/80">
+                  📍 ${sub}
+                </span>
+              `).join('')}
+            </div>
+
+            <!-- Description -->
+            <p class="mt-3 text-xs text-slate-500 leading-relaxed line-clamp-3">
+              ${spot.desc}
+            </p>
+          </div>
+
+          <!-- Card Bottom Action -->
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-[10px] text-slate-400 font-mono">
+              [${spot.coords[0].toFixed(2)}°N, ${spot.coords[1].toFixed(2)}°E]
+            </span>
+            <a 
+              href="index.html?spot=${encodeURIComponent(spot.shortName || spot.mainSpot)}"
+              class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold text-xs border border-sky-200/70 flex items-center gap-1 active:scale-95 transition"
+            >
+              <i data-lucide="navigation" class="w-3 h-3"></i>
+              <span>在地图中查看</span>
+            </a>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Province Filter Handler
+    function filterByProvince(prov, btn) {
+      selectedProvince = prov;
+      document.querySelectorAll('.province-btn').forEach(b => {
+        b.className = 'province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition';
+      });
+      btn.className = 'province-btn px-3 py-1.5 rounded-lg font-bold bg-sky-600 text-white shadow-xs shrink-0 transition';
+      renderSpots();
+    }
+
+    // Type Filter Handler
+    function filterByType(type, btn) {
+      selectedType = type;
+      document.querySelectorAll('.type-btn').forEach(b => {
+        b.className = 'type-btn px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition';
+      });
+      btn.className = 'type-btn px-2.5 py-1 rounded-md font-semibold bg-slate-800 text-white shrink-0 transition';
+      renderSpots();
+    }
+
+    // Reset Filters
+    function resetFilters() {
+      selectedProvince = "ALL";
+      selectedType = "ALL";
+      searchQuery = "";
+      document.getElementById('spotSearchInput').value = "";
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+
+      // Reset button styles
+      const firstProvBtn = document.querySelector('.province-btn');
+      if (firstProvBtn) filterByProvince('ALL', firstProvBtn);
+      const firstTypeBtn = document.querySelector('.type-btn');
+      if (firstTypeBtn) filterByType('ALL', firstTypeBtn);
+
+      renderSpots();
+    }
+
+    // Search Input Listeners
+    const searchInput = document.getElementById('spotSearchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
+
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      if (searchQuery) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderSpots();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = "";
+      searchQuery = "";
+      clearBtn.classList.add('hidden');
+      renderSpots();
+    });
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSpots();
+    });
+  </script>
+</body>
+</html>
