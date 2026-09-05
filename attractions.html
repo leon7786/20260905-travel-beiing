@@ -155,7 +155,7 @@
           </div>
           <div>
             <div class="text-[10px] sm:text-xs text-slate-400 font-medium">核心景区群</div>
-            <div id="statTotalSpots" class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">20 处</div>
+            <div id="statTotalSpots" class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">31 处</div>
           </div>
         </div>
 
@@ -185,7 +185,7 @@
           </div>
           <div>
             <div class="text-[10px] sm:text-xs text-slate-400 font-medium">当前筛选结果</div>
-            <div id="statFilteredCount" class="text-sm sm:text-base font-bold text-sky-700 mt-0.5">20 处</div>
+            <div id="statFilteredCount" class="text-sm sm:text-base font-bold text-sky-700 mt-0.5">31 处</div>
           </div>
         </div>
       </div>
@@ -195,12 +195,13 @@
         <div class="flex items-center gap-2">
           <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">地区筛选:</span>
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs">
-            <button onclick="filterByProvince('ALL', this)" class="province-btn px-3 py-1.5 rounded-lg font-bold bg-sky-600 text-white shadow-xs shrink-0 transition">全部 (20)</button>
-            <button onclick="filterByProvince('河北', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">河北 (5)</button>
-            <button onclick="filterByProvince('辽宁', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">辽宁 (8)</button>
+            <button onclick="filterByProvince('ALL', this)" class="province-btn px-3 py-1.5 rounded-lg font-bold bg-sky-600 text-white shadow-xs shrink-0 transition">全部 (31)</button>
+            <button onclick="filterByProvince('河北', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">河北 (8)</button>
+            <button onclick="filterByProvince('辽宁', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">辽宁 (11)</button>
             <button onclick="filterByProvince('内蒙古', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">内蒙古 (2)</button>
-            <button onclick="filterByProvince('京津 / 吉林', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">京津 / 吉林 (2)</button>
-            <button onclick="filterByProvince('山东 / 山西', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">山东 / 山西 (3)</button>
+            <button onclick="filterByProvince('京津', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">京津 (2)</button>
+            <button onclick="filterByProvince('吉黑', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">吉林/黑龙江 (3)</button>
+            <button onclick="filterByProvince('晋鲁', this)" class="province-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 font-medium shrink-0 transition">山西/山东 (5)</button>
           </div>
         </div>
 
@@ -257,256 +258,596 @@
 
     // 20 Scenic Spots Master Dataset
     const SPOTS_DATA = [
-      // 河北
       {
-        id: 1,
-        province: "河北",
-        fullName: "避暑山庄及外八庙（含普陀宗乘之庙、磬锤峰）",
-        shortName: "承德避暑山庄及外八庙",
-        mainSpot: "避暑山庄及外八庙",
-        subSpots: ["普陀宗乘之庙（小布达拉宫）", "磬锤峰", "须弥福寿之庙"],
-        landscapeType: "皇家园林与庙宇",
-        categoryTag: "古建",
-        coords: [40.9880, 117.9392],
-        desc: "清代皇帝避暑与处理政务的皇家园林，汇聚江南园林与塞北风光；外八庙融合汉、藏、蒙多元宗教建筑艺术。"
+            "id": 1,
+            "province": "河北",
+            "fullName": "承德避暑山庄及外八庙（含周围寺庙、小布达拉宫）",
+            "shortName": "承德避暑山庄及外八庙",
+            "landscapeType": "皇家园林与庙宇",
+            "categoryTag": "古建",
+            "subSpots": [
+                  "普陀宗乘之庙（小布达拉宫）",
+                  "磬锤峰",
+                  "须弥福寿之庙"
+            ],
+            "coords": [
+                  40.988,
+                  117.9392
+            ],
+            "desc": "清代皇帝避暑与处理政务的皇家园林，汇聚江南秀色与塞北雄风；外八庙融合汉藏蒙多元宗教建筑艺术。"
       },
       {
-        id: 2,
-        province: "河北",
-        fullName: "金山岭长城·古北水镇（含司马台长城）",
-        shortName: "金山岭长城与古北水镇",
-        mainSpot: "金山岭长城·古北水镇",
-        subSpots: ["司马台长城夜景", "古北水镇", "望京楼"],
-        landscapeType: "长城险关/水镇夜景",
-        categoryTag: "长城",
-        coords: [40.6769, 117.2471],
-        desc: "万里长城金山独秀，视野开阔敌楼密集；古北水镇依司马台长城而建，北方水乡夜色与无人机孔明灯交相辉映。"
+            "id": 2,
+            "province": "河北",
+            "fullName": "北戴河海滨风景区（含鸽子窝公园）",
+            "shortName": "北戴河海滨风景区",
+            "landscapeType": "海滨度假/观鸟胜地",
+            "categoryTag": "海滨",
+            "subSpots": [
+                  "鸽子窝公园海上日出",
+                  "老虎石海上公园",
+                  "浅水湾浴场"
+            ],
+            "coords": [
+                  39.8335,
+                  119.5312
+            ],
+            "desc": "闻名中外的避暑胜地，红日浴海与大潮坪观鸟绝佳地，海风轻拂，沙软潮平。"
       },
       {
-        id: 3,
-        province: "河北",
-        fullName: "北戴河·山海关·老龙头（含鸽子窝公园）",
-        shortName: "山海关、老龙头与北戴河",
-        mainSpot: "北戴河·山海关·老龙头",
-        subSpots: ["山海关天下第一关", "老龙头长城入海", "鸽子窝公园红日浴海"],
-        landscapeType: "海滨/长城入海口",
-        categoryTag: "海滨",
-        coords: [40.0076, 119.7562],
-        desc: "两京锁钥无双地，万里长城第一关；老龙头巍然屹立长城入海处；北戴河大潮坪看候鸟与海上红日升起。"
+            "id": 3,
+            "province": "河北",
+            "fullName": "山海关（天下第一关）",
+            "shortName": "山海关天下第一关",
+            "landscapeType": "万里长城第一关/明代雄关",
+            "categoryTag": "长城",
+            "subSpots": [
+                  "天下第一关城楼",
+                  "钟鼓楼",
+                  "迎恩门"
+            ],
+            "coords": [
+                  40.0076,
+                  119.7562
+            ],
+            "desc": "两京锁钥无双地，万里长城第一关；北依燕山，南襟渤海，雄关耸峙，气吞山河。"
       },
       {
-        id: 4,
-        province: "河北",
-        fullName: "木兰围场·坝上草原（含塞罕坝国家森林公园）",
-        shortName: "木兰围场与塞罕坝林海",
-        mainSpot: "木兰围场·坝上草原",
-        subSpots: ["塞罕坝国家森林公园", "机械林场", "七星湖湿地"],
-        landscapeType: "森林/皇家猎苑",
-        categoryTag: "草原",
-        coords: [42.4116, 117.2519],
-        desc: "清代皇家秋狝围猎之地，百万亩人工浩瀚林海与起伏草甸相映生辉，秋季层林尽染，夏季清凉避暑。"
+            "id": 4,
+            "province": "河北",
+            "fullName": "老龙头",
+            "shortName": "山海关老龙头入海处",
+            "landscapeType": "长城入海口/海防要塞",
+            "categoryTag": "长城",
+            "subSpots": [
+                  "入海石城",
+                  "澄海楼",
+                  "宁海城",
+                  "天领海疆"
+            ],
+            "coords": [
+                  39.9672,
+                  119.7944
+            ],
+            "desc": "万里长城唯一入海处，如巨龙首级探入滔滔渤海之中，登澄海楼观海浪奔涌，极其壮观。"
       },
       {
-        id: 5,
-        province: "河北",
-        fullName: "白石山景区",
-        shortName: "保定涞源白石山",
-        mainSpot: "白石山风景区",
-        subSpots: ["双雄石悬崖绝壁栈道", "大理岩峰林", "高空云海佛光"],
-        landscapeType: "峰林/云海地貌",
-        categoryTag: "山岳",
-        coords: [39.3364, 114.6865],
-        desc: "北方“张家界”，全国唯一的大理岩峰林地貌，太行之巅万仞悬崖，云海漫卷，漫步千米高空绝壁栈道。"
-      },
-
-      // 辽宁
-      {
-        id: 6,
-        province: "辽宁",
-        fullName: "千山风景名胜区（含弥勒大佛、无量观）",
-        shortName: "鞍山千山风景名胜区",
-        mainSpot: "千山风景名胜区",
-        subSpots: ["天然弥勒大佛", "无量观", "天上天奇峰"],
-        landscapeType: "山岳/佛道名山",
-        categoryTag: "山岳",
-        coords: [41.0264, 123.1362],
-        desc: "东北三大名山之一，释道同居一山，无峰不奇、无石不峭，天然巨型弥勒佛依山而坐，气势恢宏。"
+            "id": 5,
+            "province": "天津",
+            "fullName": "盘山",
+            "shortName": "天津蓟州盘山风景名胜区",
+            "landscapeType": "山岳/古刹名山",
+            "categoryTag": "山岳",
+            "subSpots": [
+                  "三盘暮雨胜景",
+                  "天成寺古刹",
+                  "挂月峰",
+                  "万松寺"
+            ],
+            "coords": [
+                  40.0934,
+                  117.2608
+            ],
+            "desc": "“早知有盘山，何必下江南”，乾隆帝曾32次巡幸；上盘松胜、中盘石胜、下盘水胜，步移景异。"
       },
       {
-        id: 7,
-        province: "辽宁",
-        fullName: "本溪水洞（含关门山、枫林谷）",
-        shortName: "本溪水洞与关门山红叶",
-        mainSpot: "本溪水洞",
-        subSpots: ["地下暗河充水溶洞", "关门山国家森林公园", "枫林谷金秋红叶"],
-        landscapeType: "地下暗河/溶洞/红叶",
-        categoryTag: "溶洞",
-        coords: [41.2965, 124.0864],
-        desc: "数百万年前形成的充水溶洞，世界最长可乘船游览的地下暗河；秋季关门山漫山遍野枫叶如火，宛如童话世界。"
+            "id": 6,
+            "province": "河北",
+            "fullName": "金山岭长城",
+            "shortName": "承德滦平金山岭长城",
+            "landscapeType": "万里长城险关/摄影日落殿堂",
+            "categoryTag": "长城",
+            "subSpots": [
+                  "将军楼",
+                  "望京楼",
+                  "文字砖长城",
+                  "金山落日"
+            ],
+            "coords": [
+                  40.6769,
+                  117.2471
+            ],
+            "desc": "万里长城金山独秀，视野开阔敌楼密布，崇山峻岭起伏跌宕，为中外摄影家公认的日落圣殿。"
       },
       {
-        id: 8,
-        province: "辽宁",
-        fullName: "盘锦红海滩国家风景廊道",
-        shortName: "盘锦红海滩风景廊道",
-        mainSpot: "盘锦红海滩国家风景廊道",
-        subSpots: ["碱蓬草红色海岸线", "红黄稻田艺术画", "黑嘴鸥丹顶鹤湿地"],
-        landscapeType: "湿地/红色海岸线",
-        categoryTag: "湿地",
-        coords: [40.9790, 121.8021],
-        desc: "世界最辽阔的湿地红毯，每年夏秋季节碱蓬草染红整片海滩，海天一色，落日余晖下绚丽无比。"
+            "id": 7,
+            "province": "北京",
+            "fullName": "古北水镇（含司马台长城）",
+            "shortName": "密云古北水镇与司马台长城",
+            "landscapeType": "水镇夜景/明代险隘长城",
+            "categoryTag": "水乡",
+            "subSpots": [
+                  "司马台夜长城",
+                  "无人机孔明灯秀",
+                  "水镇游船",
+                  "永顺染坊"
+            ],
+            "coords": [
+                  40.6543,
+                  117.2718
+            ],
+            "desc": "依燕山司马台长城而建的北方水乡度假镇，夜登司马台俯瞰万家灯火，北方水陆风光完美结合。"
       },
       {
-        id: 9,
-        province: "辽宁",
-        fullName: "棋盘山风景区（含森林动物园、关东影视城）",
-        shortName: "沈阳棋盘山风景区",
-        mainSpot: "棋盘山风景区",
-        subSpots: ["秀湖环湖游览", "沈阳森林野生动物园", "关东影视城民国街景"],
-        landscapeType: "湖光山色/休闲",
-        categoryTag: "山岳",
-        coords: [41.9392, 123.6823],
-        desc: "盛京近郊天然氧吧，秀湖水色碧波万顷，林木葱郁，集民国复古影视布景与野生动物生态于一体。"
+            "id": 8,
+            "province": "辽宁",
+            "fullName": "千山风景名胜区",
+            "shortName": "鞍山千山风景名胜区",
+            "landscapeType": "辽东名山/佛道名山",
+            "categoryTag": "山岳",
+            "subSpots": [
+                  "天然弥勒大佛",
+                  "无量观",
+                  "五佛顶",
+                  "天上天"
+            ],
+            "coords": [
+                  41.0264,
+                  123.1362
+            ],
+            "desc": "辽东第一名山，无峰不奇无石不峭，天然巨佛栩栩如生，为东北著名的释道合一圣地。"
       },
       {
-        id: 10,
-        province: "辽宁",
-        fullName: "兴城古城",
-        shortName: "辽宁兴城明代古城",
-        mainSpot: "兴城古城",
-        subSpots: ["宁远古城墙", "袁崇焕蓟辽督师府", "钟鼓楼与海滨温泉"],
-        landscapeType: "明代古城/海滨温泉",
-        categoryTag: "古建",
-        coords: [40.6186, 120.7107],
-        desc: "我国现存保存最完整的四座明代古城之一，明清战争关键节点宁远卫故址，城外拥享滨海浴场与天然温泉。"
+            "id": 9,
+            "province": "辽宁",
+            "fullName": "本溪水洞",
+            "shortName": "本溪水洞地下暗河",
+            "landscapeType": "地下暗河/钟乳溶洞",
+            "categoryTag": "奇观",
+            "subSpots": [
+                  "水洞暗河游船",
+                  "旱洞奇石",
+                  "地质博物馆",
+                  "硅化木王国"
+            ],
+            "coords": [
+                  41.2965,
+                  124.0864
+            ],
+            "desc": "世界最长的地下充水充溢溶洞，乘游船穿行于数百万年形成的奇幻钟乳石长廊，四季恒温12℃。"
       },
       {
-        id: 11,
-        province: "辽宁",
-        fullName: "锦州笔架山",
-        shortName: "锦州笔架山潮汐天桥",
-        mainSpot: "锦州笔架山",
-        subSpots: ["天桥神道（潮涨隐没/潮落踏浪）", "三清阁石塔", "海蚀怪石"],
-        landscapeType: "海中孤岛/自然奇观",
-        categoryTag: "海滨",
-        coords: [40.8123, 120.9782],
-        desc: "世界罕见的潮汐海中天桥奇观，一条鹅卵石天然神道随潮水退去浮出海面，可徒步踏浪涉水登岛。"
+            "id": 10,
+            "province": "辽宁",
+            "fullName": "红海滩国家风景廊道",
+            "shortName": "盘锦红海滩国家风景廊道",
+            "landscapeType": "湿地/红色海岸线",
+            "categoryTag": "湿地",
+            "subSpots": [
+                  "碱蓬草红毯",
+                  "踏霞漫步廊道",
+                  "稻田艺术画",
+                  "黑嘴鸥栖息地"
+            ],
+            "coords": [
+                  40.979,
+                  121.8021
+            ],
+            "desc": "全球保存最完好的滨海湿地奇观，盐碱蓬铺就漫无边际的红色海滩，傍晚晚霞与稻浪相映生辉。"
       },
       {
-        id: 12,
-        province: "辽宁",
-        fullName: "医巫闾山",
-        shortName: "辽西名山医巫闾山",
-        mainSpot: "医巫闾山",
-        subSpots: ["大石棚摩崖石刻", "望海寺古刹", "辽金皇家祭祀圣地"],
-        landscapeType: "东北名山/摩崖石刻",
-        categoryTag: "山岳",
-        coords: [41.6062, 121.7335],
-        desc: "古代五大镇山之北方幽州镇山，雄峙辽西走廊北翼，历代帝王祭祀与文人墨客题刻丰富，峰峦奇秀。"
+            "id": 11,
+            "province": "辽宁",
+            "fullName": "棋盘山风景区（含沈阳森林动物园、关东影视城）",
+            "shortName": "沈阳棋盘山风景区",
+            "landscapeType": "湖光山色/森林休闲",
+            "categoryTag": "休闲",
+            "subSpots": [
+                  "秀湖环湖绿道",
+                  "沈阳森林野生动物园",
+                  "关东民国影视城",
+                  "棋盘山顶"
+            ],
+            "coords": [
+                  41.9392,
+                  123.6823
+            ],
+            "desc": "沈阳近郊天然氧吧与休闲大本营，秀湖碧波荡漾，环湖绿道清幽，兼具山水度假与民国风情。"
       },
       {
-        id: 13,
-        province: "辽宁",
-        fullName: "沈阳市区人文点（沈阳故宫、张氏帅府）",
-        shortName: "沈阳故宫与张氏大帅府",
-        mainSpot: "沈阳市区人文点",
-        subSpots: ["盛京沈阳故宫大政殿十王亭", "张氏帅府大青楼", "赵一荻故居"],
-        landscapeType: "历史古建",
-        categoryTag: "古建",
-        coords: [41.7963, 123.4532],
-        desc: "关外唯一保存完整的清代皇宫建筑群，浓郁满汉藏合璧风格；张作霖与张学良父子官邸，近代东北风云枢纽。"
-      },
-
-      // 内蒙古
-      {
-        id: 14,
-        province: "内蒙古",
-        fullName: "乌兰布统草原（含公主湖、将军泡子）",
-        shortName: "克什克腾乌兰布统草原",
-        mainSpot: "乌兰布统草原",
-        subSpots: ["公主湖白桦林", "将军泡子康熙平准故地", "影视外景基地骏马"],
-        landscapeType: "丘陵草原/湖泊",
-        categoryTag: "草原",
-        coords: [42.5938, 117.2415],
-        desc: "欧式丘陵草甸的代表，草甸起伏、白桦亭亭、清泉湖泊点缀其间，光影变幻丰富，是自驾与摄影天堂。"
+            "id": 12,
+            "province": "辽宁",
+            "fullName": "兴城古城（含兴城海滨）",
+            "shortName": "葫芦岛兴城明代古城",
+            "landscapeType": "明代卫城/海滨温泉",
+            "categoryTag": "古建",
+            "subSpots": [
+                  "明代城墙钟楼",
+                  "蓟辽督师府",
+                  "十字古街",
+                  "兴城海滨浴场"
+            ],
+            "coords": [
+                  40.6186,
+                  120.7107
+            ],
+            "desc": "我国现存最完整的四座明代古城之一，袁崇焕宁远大捷旧址，古城、海滨、温泉三者相依。"
       },
       {
-        id: 15,
-        province: "内蒙古",
-        fullName: "阿斯哈图石林景区",
-        shortName: "赤峰阿斯哈图冰川花岗岩石林",
-        mainSpot: "阿斯哈图石林景区",
-        subSpots: ["第四纪冰川花岗岩石林", "七仙女峰", "九曲十八弯草甸草原"],
-        landscapeType: "冰川花岗岩石林",
-        categoryTag: "溶洞",
-        coords: [43.9482, 117.4721],
-        desc: "世界罕见的花岗岩冰石林地貌，经第四纪冰川冰盖刨蚀与风化而成，如古堡林立在海拔千米的大草原之巅。"
-      },
-
-      // 京津 / 吉林
-      {
-        id: 16,
-        province: "京津 / 吉林",
-        fullName: "盘山（天津蓟州）",
-        shortName: "天津蓟州盘山风景名胜区",
-        mainSpot: "盘山（天津蓟州）",
-        subSpots: ["三盘暮雨胜境", "入胜古松奇石", "天成寺与定光佛舍利塔"],
-        landscapeType: "山岳/古刹名山",
-        categoryTag: "山岳",
-        coords: [40.0934, 117.2608],
-        desc: "京东第一名山，乾隆盛赞“早知有盘山，何必下江南”。下盘水胜、中盘石胜、上盘松胜，三盘各具风姿。"
+            "id": 13,
+            "province": "河北",
+            "fullName": "木兰围场（坝上草原）",
+            "shortName": "承德木兰围场坝上草原",
+            "landscapeType": "高原草原/皇家猎苑",
+            "categoryTag": "草原",
+            "subSpots": [
+                  "御道口草原森林",
+                  "御道口月亮湖",
+                  "大峡谷风光",
+                  "红松洼风电场"
+            ],
+            "coords": [
+                  42.1285,
+                  117.5273
+            ],
+            "desc": "清代皇家秋狝围猎要地，地处内蒙古高原与燕山山脉交接处，草木繁茂，牛羊成群，盛夏清凉。"
       },
       {
-        id: 17,
-        province: "京津 / 吉林",
-        fullName: "长白山·天池（吉林）",
-        shortName: "吉林长白山天池与原始森林",
-        mainSpot: "长白山·天池（吉林）",
-        subSpots: ["长白山天池高山火山湖", "聚龙温泉群", "长白飞瀑原始苔原"],
-        landscapeType: "火山湖/原始森林",
-        categoryTag: "山岳",
-        coords: [42.0041, 128.0583],
-        desc: "十六座奇峰环抱的高山休眠火山锥，十六峰竞秀，天池水碧蓝如镜；垂直植被带从针叶林延伸到极地高山苔原。"
-      },
-
-      // 山东 / 山西
-      {
-        id: 18,
-        province: "山东 / 山西",
-        fullName: "泰山风景名胜区（山东泰安）",
-        shortName: "五岳之首山东泰山",
-        mainSpot: "泰山风景名胜区",
-        subSpots: ["玉皇顶五岳独尊", "南天门十八盘", "日观峰云海日出"],
-        landscapeType: "五岳之首/名山",
-        categoryTag: "山岳",
-        coords: [36.2558, 117.1065],
-        desc: "天下第一山，世界文化与自然双重遗产，历代帝王封禅之地；登十八盘登凌绝顶，一览众山小，气魄吞吐八荒。"
+            "id": 14,
+            "province": "河北",
+            "fullName": "塞罕坝国家森林公园",
+            "shortName": "塞罕坝国家森林公园",
+            "landscapeType": "浩瀚林海/绿色奇迹",
+            "categoryTag": "森林",
+            "subSpots": [
+                  "百万亩机械林场",
+                  "七星湖湿地公园",
+                  "亮兵台",
+                  "白桦坪"
+            ],
+            "coords": [
+                  42.4116,
+                  117.2519
+            ],
+            "desc": "“水的源头、云的故乡、林的海洋”，百万亩人工浩瀚林海，高耸风车林立，秋季金黄尽染。"
       },
       {
-        id: 19,
-        province: "山东 / 山西",
-        fullName: "青岛崂山·滨海线（山东青岛）",
-        shortName: "青岛崂山海上名山",
-        mainSpot: "青岛崂山·滨海线",
-        subSpots: ["巨峰海上第一名山", "太清宫道家祖庭", "八仙墩奇岩海蚀"],
-        landscapeType: "海上名山/海滨",
-        categoryTag: "海滨",
-        coords: [36.1458, 120.6189],
-        desc: "“泰山虽云高，不如东海崂”，我国万里海岸线上海拔最高的第一名山，山海相依、道韵深厚、海天一色。"
+            "id": 15,
+            "province": "内蒙古",
+            "fullName": "乌兰布统草原",
+            "shortName": "赤峰克旗乌兰布统草原",
+            "landscapeType": "丘陵草甸/湖泊白桦",
+            "categoryTag": "草原",
+            "subSpots": [
+                  "公主湖",
+                  "将军泡子古战场",
+                  "蛤蟆坝摄影基地",
+                  "影视外景基地"
+            ],
+            "coords": [
+                  42.5938,
+                  117.2415
+            ],
+            "desc": "欧式丘陵起伏草原景观，白桦林与草甸湖泊错落点缀，康熙征战古战场，自驾与摄影胜地。"
       },
       {
-        id: 20,
-        province: "山东 / 山西",
-        fullName: "五台山风景名胜区（山西忻州）",
-        shortName: "山西忻州五台山文殊道场",
-        mainSpot: "五台山风景名胜区",
-        subSpots: ["显通寺与菩萨顶", "塔院寺白塔", "五座台顶高山草甸云海"],
-        landscapeType: "佛教名山/高山草甸",
-        categoryTag: "山岳",
-        coords: [39.0142, 113.5937],
-        desc: "中国四大佛教名山之首，文殊菩萨道场，青庙黄庙交汇并存，五峰耸立平坦如台，夏日清凉圣境。"
+            "id": 16,
+            "province": "辽宁",
+            "fullName": "锦州笔架山",
+            "shortName": "锦州笔架山潮汐天桥",
+            "landscapeType": "海中孤岛/自然潮汐奇观",
+            "categoryTag": "奇观",
+            "subSpots": [
+                  "天桥奇观（潮落现路）",
+                  "三清阁",
+                  "五母宫",
+                  "跨海索道"
+            ],
+            "coords": [
+                  40.8123,
+                  120.9782
+            ],
+            "desc": "海中笔架形孤岛，潮落时现一条长1.6公里的天然卵石天桥直通海岛，潮涨天桥隐于万顷波涛。"
+      },
+      {
+            "id": 17,
+            "province": "辽宁",
+            "fullName": "医巫闾山",
+            "shortName": "锦州北镇医巫闾山",
+            "landscapeType": "东北名山/北方镇山",
+            "categoryTag": "山岳",
+            "subSpots": [
+                  "大石棚",
+                  "望海寺",
+                  "桃花洞摩崖石刻",
+                  "圣水盆"
+            ],
+            "coords": [
+                  41.6062,
+                  121.7335
+            ],
+            "desc": "东北三大名山之首，隋唐五大镇山之北方幽州镇山，奇峰叠翠，深山古寺，历代帝王祭祀胜地。"
+      },
+      {
+            "id": 18,
+            "province": "吉林",
+            "fullName": "长白山·天池",
+            "shortName": "吉林长白山天池与瀑布",
+            "landscapeType": "火山火山口湖/原始森林",
+            "categoryTag": "奇观",
+            "subSpots": [
+                  "天池火山口湖",
+                  "长白飞瀑",
+                  "聚龙温泉群",
+                  "绿渊潭",
+                  "地下森林"
+            ],
+            "coords": [
+                  42.0041,
+                  128.0583
+            ],
+            "desc": "关东第一神山，十六座奇峰环抱蓝宝石般的天池，垂直植被带谱完整，冰瀑温泉相映生辉。"
+      },
+      {
+            "id": 19,
+            "province": "河北",
+            "fullName": "白石山风景区",
+            "shortName": "保定涞源白石山风景区",
+            "landscapeType": "大理岩峰林/高空绝壁栈道",
+            "categoryTag": "山岳",
+            "subSpots": [
+                  "双雄石绝壁栈道",
+                  "大理岩峰林奇观",
+                  "高空云海佛光",
+                  "飞狐峡"
+            ],
+            "coords": [
+                  39.3364,
+                  114.6865
+            ],
+            "desc": "北方“张家界”，全国唯一的大理岩峰林地貌，太行之巅万仞悬崖，云海漫卷，漫步千米高空栈道。"
+      },
+      {
+            "id": 20,
+            "province": "山西",
+            "fullName": "五台山风景名胜区",
+            "shortName": "山西忻州五台山风景区",
+            "landscapeType": "佛教名山/高山草甸",
+            "categoryTag": "名山",
+            "subSpots": [
+                  "塔院寺大白塔",
+                  "显通寺",
+                  "菩萨顶",
+                  "黛螺顶大智路",
+                  "五大台顶"
+            ],
+            "coords": [
+                  39.0142,
+                  113.5937
+            ],
+            "desc": "中国四大佛教名山之首，文殊菩萨道场，青庙黄庙合一；五座台顶平坦开阔，盛夏清凉宜人。"
+      },
+      {
+            "id": 21,
+            "province": "山东",
+            "fullName": "泰山风景名胜区",
+            "shortName": "山东泰安泰山风景名胜区",
+            "landscapeType": "五岳之首/名山圣地",
+            "categoryTag": "名山",
+            "subSpots": [
+                  "南天门",
+                  "日观峰红日云海",
+                  "玉皇顶",
+                  "紧十八盘",
+                  "经石峪"
+            ],
+            "coords": [
+                  36.2558,
+                  117.1065
+            ],
+            "desc": "五岳独尊，天下第一山！历代帝王封禅圣地，东岳泰山拔地通天，摩崖碑刻林立，会当凌绝顶。"
+      },
+      {
+            "id": 22,
+            "province": "辽宁",
+            "fullName": "本溪关门山国家森林公园（含枫林谷）",
+            "shortName": "本溪关门山国家森林公园",
+            "landscapeType": "峡谷红叶/东北小黄山",
+            "categoryTag": "森林",
+            "subSpots": [
+                  "小黄山石峰",
+                  "夹砬子峡谷",
+                  "枫王秋色",
+                  "枫林谷森林氧吧"
+            ],
+            "coords": [
+                  41.0852,
+                  124.1633
+            ],
+            "desc": "“中国枫叶之都”本溪的核心精华，山峻、石怪、水秀、枫红，金秋十月漫山红叶如火如荼。"
+      },
+      {
+            "id": 23,
+            "province": "山东",
+            "fullName": "青岛崂山风景区",
+            "shortName": "青岛崂山风景区滨海线",
+            "landscapeType": "海上名山第一/道教仙山",
+            "categoryTag": "海滨",
+            "subSpots": [
+                  "巨峰绝顶",
+                  "太清宫道观",
+                  "仰口海景湾",
+                  "九水十八潭"
+            ],
+            "coords": [
+                  36.1458,
+                  120.6189
+            ],
+            "desc": "“泰山虽云高，不如东海崂”，道教全真天下第二丛林，巨峰危崖直插蔚蓝黄海，山海一色。"
+      },
+      {
+            "id": 24,
+            "province": "辽宁",
+            "fullName": "丹东鸭绿江",
+            "shortName": "丹东鸭绿江断桥与虎山长城",
+            "landscapeType": "中朝界河风光/边境要塞",
+            "categoryTag": "边境",
+            "subSpots": [
+                  "鸭绿江断桥",
+                  "明长城起点虎山长城",
+                  "中朝界河游船",
+                  "一步跨口岸"
+            ],
+            "coords": [
+                  40.117,
+                  124.3941
+            ],
+            "desc": "中朝界河壮美风光，断桥弹痕触摸历史沧桑，乘江轮近览对岸风貌，登虎山长城遥望千里江山。"
+      },
+      {
+            "id": 25,
+            "province": "辽宁",
+            "fullName": "大连滨海路",
+            "shortName": "大连滨海路景观大道",
+            "landscapeType": "滨海公路/山海海蚀风光",
+            "categoryTag": "海滨",
+            "subSpots": [
+                  "星海湾跨海大桥",
+                  "棒棰岛海滨",
+                  "北大桥",
+                  "老虎滩渔人码头"
+            ],
+            "coords": [
+                  38.8685,
+                  121.6842
+            ],
+            "desc": "依山傍海蜿蜒数十里的中国最美滨海公路，一侧是奇石怪礁断崖峭壁，一侧是烟波浩渺的黄海。"
+      },
+      {
+            "id": 26,
+            "province": "黑龙江",
+            "fullName": "镜泊湖",
+            "shortName": "牡丹江镜泊湖风景区",
+            "landscapeType": "高山堰塞湖/火山熔岩瀑布",
+            "categoryTag": "奇观",
+            "subSpots": [
+                  "吊水楼瀑布",
+                  "百里长湖游船",
+                  "火山口原始森林",
+                  "毛公山"
+            ],
+            "coords": [
+                  44.0289,
+                  128.9325
+            ],
+            "desc": "万年前火山喷发熔岩阻塞牡丹江形成的巨型高山湖泊，吊水楼黑石瀑布万马奔腾，气势恢宏。"
+      },
+      {
+            "id": 27,
+            "province": "黑龙江",
+            "fullName": "哈尔滨太阳岛",
+            "shortName": "哈尔滨太阳岛风景名胜区",
+            "landscapeType": "冰城风情/松花江水陆湿地",
+            "categoryTag": "休闲",
+            "subSpots": [
+                  "俄罗斯风情小镇",
+                  "太阳石",
+                  "松花江缆车",
+                  "水阁云天"
+            ],
+            "coords": [
+                  45.7958,
+                  126.5936
+            ],
+            "desc": "坐落于松花江北岸的避暑胜地与冰雪之冠，夏日欧陆林泉风光秀丽，冬日化身雪雕艺术王国。"
+      },
+      {
+            "id": 28,
+            "province": "山西",
+            "fullName": "平遥古城",
+            "shortName": "晋中平遥古城",
+            "landscapeType": "明清古城/晋商文化",
+            "categoryTag": "古建",
+            "subSpots": [
+                  "明代古城墙",
+                  "日升昌票号",
+                  "协同庆钱庄地下金库",
+                  "平遥县衙"
+            ],
+            "coords": [
+                  37.2023,
+                  112.1887
+            ],
+            "desc": "保存最为完整的中国古代县城之一，晋商文化的发祥地，青砖灰瓦古街幽深，尽显明清风骨。"
+      },
+      {
+            "id": 29,
+            "province": "山西",
+            "fullName": "云冈石窟 / 恒山",
+            "shortName": "大同云冈石窟与北岳恒山",
+            "landscapeType": "石窟艺术/北岳险关悬空寺",
+            "categoryTag": "名山",
+            "subSpots": [
+                  "云冈石窟大佛第20窟",
+                  "恒山悬空寺绝壁古刹",
+                  "天峰岭主峰",
+                  "善化寺"
+            ],
+            "coords": [
+                  40.1092,
+                  113.1444
+            ],
+            "desc": "中国四大石窟之一北魏造像巅峰云冈石窟；恒山翠屏峰绝壁高悬千年的“危楼高百尺”悬空寺。"
+      },
+      {
+            "id": 30,
+            "province": "辽宁",
+            "fullName": "沈阳故宫 / 张氏帅府",
+            "shortName": "沈阳故宫与张氏帅府",
+            "landscapeType": "满清早期宫殿/民国官邸",
+            "categoryTag": "古建",
+            "subSpots": [
+                  "沈阳故宫大政殿与十王亭",
+                  "张氏帅府大青楼",
+                  "赵一荻故居",
+                  "金融博物馆"
+            ],
+            "coords": [
+                  41.7963,
+                  123.4532
+            ],
+            "desc": "关外盛京一朝发祥地，清初满汉合璧宫殿建筑群；民国奉系统帅张作霖、张学良父子官邸私宅。"
+      },
+      {
+            "id": 31,
+            "province": "内蒙古",
+            "fullName": "阿斯哈图石林景区",
+            "shortName": "克什克腾阿斯哈图石林",
+            "landscapeType": "冰川花岗岩石林/草原奇峰",
+            "categoryTag": "奇观",
+            "subSpots": [
+                  "月亮城堡",
+                  "鲲鹏落草原",
+                  "擎天双柱石阵",
+                  "高山草甸"
+            ],
+            "coords": [
+                  43.9482,
+                  117.4721
+            ],
+            "desc": "第四纪冰川雕刻的世界罕见花岗岩冰石林，如城堡古塔突兀挺立于克什克腾高山草甸之上，极为壮观。"
       }
-    ];
+];
 
     // State
     let selectedProvince = "ALL";
@@ -518,7 +859,8 @@
       if (prov.includes("河北")) return "bg-sky-50 text-sky-700 border-sky-200";
       if (prov.includes("辽宁")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
       if (prov.includes("内蒙古")) return "bg-teal-50 text-teal-700 border-teal-200";
-      if (prov.includes("吉林") || prov.includes("京津")) return "bg-indigo-50 text-indigo-700 border-indigo-200";
+      if (prov.includes("吉林") || prov.includes("黑龙江")) return "bg-blue-50 text-blue-700 border-blue-200";
+      if (prov.includes("北京") || prov.includes("天津")) return "bg-indigo-50 text-indigo-700 border-indigo-200";
       if (prov.includes("山东") || prov.includes("山西")) return "bg-amber-50 text-amber-700 border-amber-200";
       return "bg-slate-100 text-slate-700 border-slate-200";
     }
@@ -545,7 +887,12 @@
 
       const filtered = SPOTS_DATA.filter(item => {
         // Province Match
-        const provMatch = (selectedProvince === "ALL" || item.province === selectedProvince);
+        let provMatch = false;
+        if (selectedProvince === "ALL") provMatch = true;
+        else if (selectedProvince === "京津") provMatch = (item.province === "北京" || item.province === "天津");
+        else if (selectedProvince === "吉黑") provMatch = (item.province === "吉林" || item.province === "黑龙江");
+        else if (selectedProvince === "晋鲁") provMatch = (item.province === "山西" || item.province === "山东");
+        else provMatch = (item.province === selectedProvince);
         // Type Match
         const typeMatch = (selectedType === "ALL" || item.categoryTag === selectedType || item.landscapeType.includes(selectedType));
         // Search Match
