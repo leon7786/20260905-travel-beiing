@@ -164,6 +164,17 @@
       cursor: pointer;
       width: 24px;
       height: 24px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Enlarge invisible tap target on touchscreen */
+    .subtle-spot-container::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: transparent;
+      z-index: 1;
     }
 
     /* Outer breathing aura in subtle light-to-dark gray (1s 周期) */
@@ -339,10 +350,22 @@
         max-width: 400px;
         z-index: 50;
         box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 12px);
+      }
+
+      #toastContainer {
+        top: 60px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        right: auto !important;
+        width: 90% !important;
+        max-width: 320px !important;
+        align-items: center !important;
       }
 
       .leaflet-bottom.leaflet-right {
-        bottom: 74px !important;
+        bottom: 84px !important;
         right: 12px !important;
       }
       .leaflet-control-zoom {
@@ -356,11 +379,21 @@
         height: 34px !important;
         line-height: 34px !important;
       }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
     }
 
     @media (max-width: 430px) {
       :root {
         --header-height: 50px;
+      }
+      #sidebarPanel {
+        width: 92vw;
       }
       .hide-on-compact-phone { display: none !important; }
       .custom-waypoint-marker {
@@ -582,44 +615,44 @@
         </div>
 
         <!-- Custom DIY Route Control Panel (Shown only in DIY Mode) -->
-        <div id="customRoutePanel" class="hidden bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-3 shadow-sm space-y-2.5">
+        <div id="customRoutePanel" class="hidden bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-2.5 sm:p-3 shadow-sm space-y-2">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 min-w-0">
               <span class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-ping shrink-0"></span>
-              <h2 class="font-bold text-xs sm:text-sm text-purple-900">自定义线路 · 自由画线</h2>
+              <h2 class="font-bold text-xs sm:text-sm text-purple-900 truncate">自定义线路 · 自由画线</h2>
             </div>
-            <span id="customStatTag" class="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-purple-200 text-purple-900 border border-purple-300">0 站 · 0 km</span>
+            <span id="customStatTag" class="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-purple-200 text-purple-900 border border-purple-300 shrink-0">0 站 · 0 km</span>
           </div>
           
-          <p class="text-[11px] text-purple-800 leading-relaxed bg-white/70 p-2 rounded-lg border border-purple-100">
-            💡 <strong>画线指引：</strong>在地图上<strong>直接点击任意景点</strong>进行连线，或从下方景区库一键加入。可随时重排或一键闭环返京。
+          <p class="text-[10px] sm:text-[11px] text-purple-800 leading-snug bg-white/75 p-2 rounded-lg border border-purple-100">
+            💡 <strong>画线提示：</strong>地图上<strong>直接点击景点圆点</strong>快速连线，或从下方备选库一键加入。
           </p>
 
-          <!-- DIY Action Buttons Toolbar -->
+          <!-- DIY Action Buttons Toolbar (Responsive 3 columns, clean touch target) -->
           <div class="grid grid-cols-3 gap-1.5 text-xs">
-            <button id="addBeijingBtn" class="py-1.5 px-2 bg-white hover:bg-purple-100 text-purple-800 rounded-lg border border-purple-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
-              <i data-lucide="map-pin" class="w-3 h-3 text-purple-600"></i>
-              <span>+ 北京起点</span>
+            <button id="addBeijingBtn" class="py-2 px-1 bg-white hover:bg-purple-100 text-purple-800 rounded-lg border border-purple-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs active:scale-95">
+              <i data-lucide="map-pin" class="w-3 h-3 text-purple-600 shrink-0"></i>
+              <span class="truncate">+北京起点</span>
             </button>
-            <button id="closeLoopBtn" class="py-1.5 px-2 bg-white hover:bg-purple-100 text-purple-800 rounded-lg border border-purple-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
-              <i data-lucide="rotate-ccw" class="w-3 h-3 text-purple-600"></i>
-              <span>闭环返京</span>
+            <button id="closeLoopBtn" class="py-2 px-1 bg-white hover:bg-purple-100 text-purple-800 rounded-lg border border-purple-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs active:scale-95">
+              <i data-lucide="rotate-ccw" class="w-3 h-3 text-purple-600 shrink-0"></i>
+              <span class="truncate">闭环返京</span>
             </button>
-            <button id="undoCustomBtn" class="py-1.5 px-2 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
-              <i data-lucide="undo" class="w-3 h-3 text-slate-500"></i>
-              <span>撤销上步</span>
+            <button id="undoCustomBtn" class="py-2 px-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs active:scale-95">
+              <i data-lucide="undo" class="w-3 h-3 text-slate-500 shrink-0"></i>
+              <span class="truncate">撤销上步</span>
             </button>
-            <button id="loadTemplateBtn" class="py-1.5 px-2 bg-white hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
-              <i data-lucide="sparkles" class="w-3 h-3 text-indigo-600"></i>
-              <span>载入经典模板</span>
+            <button id="loadTemplateBtn" class="py-2 px-1 bg-white hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs active:scale-95">
+              <i data-lucide="sparkles" class="w-3 h-3 text-indigo-600 shrink-0"></i>
+              <span class="truncate">经典模板</span>
             </button>
-            <button id="copyCustomItineraryBtn" class="py-1.5 px-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-[11px] flex items-center justify-center gap-1 transition shadow-sm">
-              <i data-lucide="copy" class="w-3 h-3"></i>
-              <span>复制路书</span>
+            <button id="copyCustomItineraryBtn" class="py-2 px-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-[11px] flex items-center justify-center gap-1 transition shadow-sm active:scale-95">
+              <i data-lucide="copy" class="w-3 h-3 shrink-0"></i>
+              <span class="truncate">复制路书</span>
             </button>
-            <button id="clearCustomBtn" class="py-1.5 px-2 bg-white hover:bg-rose-50 text-rose-600 rounded-lg border border-rose-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs">
-              <i data-lucide="trash-2" class="w-3 h-3 text-rose-500"></i>
-              <span>清空重画</span>
+            <button id="clearCustomBtn" class="py-2 px-1 bg-white hover:bg-rose-50 text-rose-600 rounded-lg border border-rose-200 font-medium text-[11px] flex items-center justify-center gap-1 transition shadow-xs active:scale-95">
+              <i data-lucide="trash-2" class="w-3 h-3 text-rose-500 shrink-0"></i>
+              <span class="truncate">清空重画</span>
             </button>
           </div>
         </div>
@@ -648,15 +681,26 @@
       <div id="map"></div>
 
       <!-- Top Notification Bar in Custom Mode -->
-      <div id="customModeHud" class="hidden absolute top-3 sm:top-5 left-3 sm:left-5 z-20 bg-white/95 backdrop-blur-md border border-purple-300 px-3.5 py-2 rounded-xl shadow-lg flex items-center gap-2.5 max-w-[calc(100vw-24px)]">
-        <div class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-ping shrink-0"></div>
-        <div class="min-w-0">
-          <div class="text-[10px] text-purple-700 font-bold uppercase tracking-wider leading-none">自主画线模式激活</div>
-          <div class="text-xs text-slate-700 truncate mt-0.5">点击地图上的景点小圆点，即可顺次绘制线路并测距</div>
+      <div id="customModeHud" class="hidden absolute top-2.5 sm:top-5 left-2.5 sm:left-5 z-20 bg-white/95 backdrop-blur-md border border-purple-300 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-lg flex items-center justify-between sm:justify-start gap-2 max-w-[calc(100vw-20px)] sm:max-w-md">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-2.5 h-2.5 rounded-full bg-purple-600 animate-ping shrink-0"></div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] sm:text-xs text-purple-900 font-bold leading-none">自主画线模式</span>
+              <span id="customHudStatsBadge" class="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800 font-mono font-bold">1站·0km</span>
+            </div>
+            <div class="text-[10px] text-slate-500 truncate mt-0.5 hidden xs:block">点击地图圆点快速连线 · 随时调序与闭环</div>
+          </div>
         </div>
-        <button onclick="exitCustomMode()" class="ml-2 text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded font-medium transition shrink-0">
-          退出画线
-        </button>
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="fitCustomRouteBounds()" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg font-medium transition flex items-center gap-0.5 active:scale-95" title="居中当前路线全景">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i>
+            <span class="hidden xs:inline">全景</span>
+          </button>
+          <button onclick="exitCustomMode()" class="text-[11px] bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded-lg font-medium transition shrink-0 active:scale-95">
+            退出
+          </button>
+        </div>
       </div>
 
       <!-- Floating Legend (Desktop & iPad) -->
@@ -689,8 +733,8 @@
         </div>
       </div>
 
-      <!-- Mobile Bottom Floating Quick Bar (Phone only) -->
-      <div class="sm:hidden absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-1.5 pointer-events-none">
+      <!-- Mobile Bottom Floating Quick Bar (Phone only - Normal Routes) -->
+      <div id="mobileNormalBottomBar" class="sm:hidden absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-1.5 pointer-events-none">
         <!-- Left: Quick Switcher Pill -->
         <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-1 shadow-lg flex items-center gap-1 pointer-events-auto shrink-0">
           <button onclick="selectRoute(1)" id="mobileQuickR1" class="px-2 py-1 rounded-lg text-xs font-bold bg-sky-100 text-sky-800 transition">方案1</button>
@@ -704,6 +748,36 @@
           <i data-lucide="list-ordered" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>行程清单</span>
         </button>
+      </div>
+
+      <!-- Mobile Bottom Floating Custom Mode Dock (Phone only - Custom Route Mode) -->
+      <div id="mobileCustomBottomDock" class="hidden sm:hidden absolute bottom-3 left-2.5 right-2.5 z-20 flex flex-col gap-1.5 pointer-events-none">
+        <div class="bg-white/98 backdrop-blur-md border border-purple-200 shadow-xl rounded-2xl p-1.5 pointer-events-auto flex items-center justify-between gap-1.5">
+          <!-- Stats Chip -->
+          <div class="flex items-center gap-1.5 pl-2 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-purple-600 animate-ping shrink-0"></span>
+            <div class="min-w-0">
+              <div class="text-[10px] text-purple-700 font-bold leading-none">自由画线</div>
+              <div id="mobileCustomKmTag" class="text-xs font-bold text-slate-800 truncate mt-0.5">1站 · 0km</div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons on Map -->
+          <div class="flex items-center gap-1 shrink-0">
+            <button onclick="undoLastCustomSpot()" class="px-2 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium active:scale-95 transition flex items-center gap-0.5" title="撤销上步">
+              <i data-lucide="undo" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span class="text-[11px]">撤销</span>
+            </button>
+            <button onclick="closeLoopToBeijing()" class="px-2 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-semibold active:scale-95 transition flex items-center gap-0.5 border border-purple-200" title="闭环返京">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-purple-600"></i>
+              <span class="text-[11px]">闭环</span>
+            </button>
+            <button onclick="openMobileDrawer()" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold shadow-md shadow-purple-500/25 active:scale-95 transition flex items-center gap-1">
+              <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+              <span>清单 (<span id="mobileCustomDockBadge">1</span>)</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Floating Animation HUD -->
@@ -1253,6 +1327,8 @@
     let customMarkersGroup = null;
     let customSelectedSpots = []; // Array of spot objects in order
     let showSubtleSpots = true;
+    let customPoolProvince = '全部';
+    let customPoolKeyword = '';
     let animTimer = null;
     let animStep = 0;
 
@@ -1531,6 +1607,13 @@
       customRoutePolyline.setLatLngs([]);
       customMarkersGroup.clearLayers();
 
+      // Mobile Bottom Bar Toggle
+      const normalBar = document.getElementById('mobileNormalBottomBar');
+      if (normalBar) normalBar.classList.remove('hidden');
+      const customDock = document.getElementById('mobileCustomBottomDock');
+      if (customDock) customDock.classList.add('hidden');
+
+
       // Update Tabs UI
       ['tabRoute1', 'tabRoute2', 'tabRoute3', 'tabRouteCustom'].forEach((tabId, idx) => {
         const tab = document.getElementById(tabId);
@@ -1644,8 +1727,12 @@
       document.getElementById('customRoutePanel').classList.remove('hidden');
       document.getElementById('customModeHud').classList.remove('hidden');
 
-      const mobileDrawerBadge = document.getElementById('mobileDrawerDayCount');
-      if (mobileDrawerBadge) mobileDrawerBadge.textContent = `${customSelectedSpots.length}站`;
+      // Mobile Bottom Bar Toggle
+      const normalBar = document.getElementById('mobileNormalBottomBar');
+      if (normalBar) normalBar.classList.add('hidden');
+      const customDock = document.getElementById('mobileCustomBottomDock');
+      if (customDock) customDock.classList.remove('hidden');
+
       const mobileDrawerHeader = document.getElementById('mobileDrawerHeaderTitle');
       if (mobileDrawerHeader) mobileDrawerHeader.textContent = `自定义画线路书`;
 
@@ -1657,15 +1744,28 @@
       // Redraw custom route
       updateCustomRouteDisplay();
       renderCustomRouteSidebar();
-      showToast('已进入自定义画线模式！直接点击地图上的景点或下方列表即可连线', 'info');
+      showToast('已进入自主画线模式！点击地图圆点或在底部清单管理', 'info');
     }
 
     function exitCustomMode() {
       selectRoute(1);
+      showToast('已退出画线模式，返回方案一', 'info');
+    }
+
+    function fitCustomRouteBounds() {
+      if (customSelectedSpots.length > 1) {
+        const pad = isMobile() ? [25, 25] : [45, 45];
+        map.fitBounds(customRoutePolyline.getBounds().pad(0.15), { padding: pad, maxZoom: 9 });
+      } else {
+        const zoom = isMobile() ? 5.5 : 6;
+        map.setView([41.0, 119.5], zoom);
+      }
     }
 
     // Add or remove spot in custom route
     function toggleSpotInCustomRoute(spot) {
+      map.closePopup();
+      map.closeTooltip();
       const idx = customSelectedSpots.findIndex(s => s.id === spot.id && s.id !== 0);
       if (idx !== -1) {
         customSelectedSpots.splice(idx, 1);
@@ -1674,7 +1774,7 @@
         customSelectedSpots.push(spot);
         showToast(`已加入线路第 ${customSelectedSpots.length} 站：${spot.shortName}`, 'success');
       }
-      updateCustomRouteDisplay();
+      updateCustomRouteDisplay(true);
       renderCustomRouteSidebar();
     }
 
@@ -1760,7 +1860,7 @@
     }
 
     // Update map graphics for Custom Route
-    function updateCustomRouteDisplay() {
+    function updateCustomRouteDisplay(autoFit = true) {
       const latlngs = customSelectedSpots.map(s => s.coords);
       customRoutePolyline.setLatLngs(latlngs);
       customMarkersGroup.clearLayers();
@@ -1817,18 +1917,34 @@
         customMarkersGroup.addLayer(marker);
       });
 
-      // Update Custom Stat Tag
+      // Update Custom Stat Tags across all UI elements
       const totalKm = calculateTotalKm(customSelectedSpots);
       const estDays = Math.max(1, Math.round(customSelectedSpots.length * 1.1));
+      
       const statTag = document.getElementById('customStatTag');
       if (statTag) {
         statTag.textContent = `${customSelectedSpots.length} 站 · 约 ${totalKm} km · 预估 ${estDays} 天`;
       }
+      const customHudBadge = document.getElementById('customHudStatsBadge');
+      if (customHudBadge) {
+        customHudBadge.textContent = `${customSelectedSpots.length}站·约${totalKm}km`;
+      }
+      const mobileKmTag = document.getElementById('mobileCustomKmTag');
+      if (mobileKmTag) {
+        mobileKmTag.textContent = `${customSelectedSpots.length}站 · 约${totalKm}km`;
+      }
+      const mobileDockBadge = document.getElementById('mobileCustomDockBadge');
+      if (mobileDockBadge) {
+        mobileDockBadge.textContent = `${customSelectedSpots.length}`;
+      }
+      const mobileDrawerBadge = document.getElementById('mobileDrawerDayCount');
+      if (mobileDrawerBadge && isCustomMode) {
+        mobileDrawerBadge.textContent = `${customSelectedSpots.length}站 · ${totalKm}km`;
+      }
 
-      // Auto fit bounds if points exist
-      if (customSelectedSpots.length > 0) {
-        const pad = isMobile() ? [25, 25] : [45, 45];
-        map.fitBounds(customRoutePolyline.getBounds().pad(0.15), { padding: pad, maxZoom: 10 });
+      // Auto fit bounds
+      if (autoFit) {
+        fitCustomRouteBounds();
       }
     }
 
@@ -1839,7 +1955,7 @@
 
       if (customSelectedSpots.length === 0) {
         container.innerHTML = `
-          <div class="text-center py-10 px-4 space-y-3">
+          <div class="text-center py-8 px-4 space-y-3">
             <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mx-auto shadow-inner">
               <i data-lucide="pencil-line" class="w-6 h-6"></i>
             </div>
@@ -1847,7 +1963,7 @@
             <p class="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
               点击地图上的任意景点圆点即可顺次连线，或点击下方按钮加入北京起点。
             </p>
-            <button onclick="addBeijingStart()" class="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold shadow-sm hover:bg-purple-700 transition">
+            <button onclick="addBeijingStart()" class="px-3.5 py-2 bg-purple-600 text-white rounded-xl text-xs font-semibold shadow-sm hover:bg-purple-700 active:scale-95 transition">
               + 添加北京起点启程
             </button>
           </div>
@@ -1867,7 +1983,7 @@
           <i data-lucide="route" class="w-4 h-4 text-purple-600"></i>
           <span>已规划行程节点 (${customSelectedSpots.length} 站)</span>
         </span>
-        <span class="text-[10px] text-purple-600 font-normal">支持上下调序与删除</span>
+        <span class="text-[10px] text-purple-600 font-normal">可上下调序 · 点卡片定位</span>
       `;
       seqSection.appendChild(seqHeader);
 
@@ -1889,7 +2005,7 @@
         const item = document.createElement('div');
         item.className = 'group p-2.5 rounded-xl border border-purple-200/80 bg-white hover:border-purple-300 shadow-xs transition flex items-center justify-between gap-2';
         item.innerHTML = `
-          <div class="flex items-center gap-2 min-w-0 flex-1">
+          <div class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer">
             <span class="w-6 h-6 rounded-full ${nodeBadgeBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
               ${nodeLabel}
             </span>
@@ -1903,15 +2019,18 @@
           </div>
 
           <div class="flex items-center gap-1 shrink-0">
-            ${idx > 0 ? `<button onclick="moveCustomSpot(${idx}, -1)" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-700" title="上移一位"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i></button>` : ''}
-            ${idx < customSelectedSpots.length - 1 ? `<button onclick="moveCustomSpot(${idx}, 1)" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-700" title="下移一位"><i data-lucide="arrow-down" class="w-3.5 h-3.5"></i></button>` : ''}
-            <button onclick="removeCustomSpotByIndex(${idx})" class="p-1 hover:bg-rose-50 rounded text-slate-400 hover:text-rose-600" title="删除该站点"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+            ${idx > 0 ? `<button onclick="moveCustomSpot(${idx}, -1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-700 active:scale-90" title="上移一位"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i></button>` : ''}
+            ${idx < customSelectedSpots.length - 1 ? `<button onclick="moveCustomSpot(${idx}, 1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-700 active:scale-90" title="下移一位"><i data-lucide="arrow-down" class="w-3.5 h-3.5"></i></button>` : ''}
+            <button onclick="removeCustomSpotByIndex(${idx})" class="p-1.5 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 active:scale-90" title="删除该站点"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
           </div>
         `;
 
-        item.addEventListener('click', (e) => {
-          if (e.target.closest('button')) return;
+        item.querySelector('.cursor-pointer').addEventListener('click', () => {
           map.flyTo(spot.coords, 9, { duration: 1 });
+          if (isMobile()) {
+            closeMobileDrawer();
+            showToast(`已在地图定位：${spot.shortName}`, 'info');
+          }
         });
 
         seqSection.appendChild(item);
@@ -1920,42 +2039,111 @@
 
       // 2. Unselected Scenic Spots Pool
       const poolSection = document.createElement('div');
-      poolSection.className = 'pt-3 border-t border-slate-200 space-y-2';
+      poolSection.className = 'pt-3 border-t border-slate-200 space-y-2.5';
       
-      const unselected = SCENIC_SPOTS_DATA.filter(s => !customSelectedSpots.some(cs => cs.id === s.id));
+      const unselectedAll = SCENIC_SPOTS_DATA.filter(s => !customSelectedSpots.some(cs => cs.id === s.id));
+      const provs = ['全部', '河北', '辽宁', '内蒙古', '京津', '其他'];
+      
       poolSection.innerHTML = `
-        <div class="flex items-center justify-between text-xs font-bold text-slate-700 px-1">
-          <span class="flex items-center gap-1.5">
-            <i data-lucide="plus-circle" class="w-4 h-4 text-purple-600"></i>
-            <span>备选景区库 (${unselected.length} 个未加入)</span>
-          </span>
-          <span class="text-[10px] text-slate-400">点击 + 即可加入连线</span>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700 px-1">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="plus-circle" class="w-4 h-4 text-purple-600"></i>
+              <span>备选景区库 (${unselectedAll.length} 个未加入)</span>
+            </span>
+            <span class="text-[10px] text-slate-400">点击加入</span>
+          </div>
+
+          <!-- Quick Filter Bar on Mobile -->
+          <div class="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-[11px]">
+            ${provs.map(p => `
+              <button onclick="setCustomPoolProvince('${p}')" class="px-2 py-1 rounded-lg shrink-0 font-medium transition active:scale-95 ${
+                customPoolProvince === p ? 'bg-purple-600 text-white font-bold shadow-xs' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              }">${p}</button>
+            `).join('')}
+          </div>
+
+          <!-- Quick Search in Pool -->
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"></i>
+            <input 
+              id="customPoolSearch"
+              type="text" 
+              placeholder="快速搜索备选景区..." 
+              value="${customPoolKeyword}"
+              class="w-full bg-white border border-slate-200 text-xs rounded-lg pl-8 pr-2.5 py-1.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 transition"
+              oninput="handleCustomPoolSearch(this.value)"
+            />
+          </div>
         </div>
-        <div class="grid grid-cols-1 gap-1.5">
-          ${unselected.map(s => `
-            <div class="p-2 rounded-xl border border-slate-200 bg-white hover:bg-purple-50/60 hover:border-purple-200 transition flex items-center justify-between gap-2 shadow-xs group">
-              <div class="min-w-0 cursor-pointer flex-1" onclick="previewAndFlyTo([${s.coords}])">
-                <div class="flex items-center gap-1.5">
-                  <span class="font-bold text-xs text-slate-800 group-hover:text-purple-900 truncate">${s.shortName}</span>
-                  <span class="text-[9px] px-1 py-0.2 rounded bg-slate-100 text-slate-600 font-mono shrink-0">${s.province}</span>
-                </div>
-                <div class="text-[10px] text-slate-500 truncate mt-0.5">${s.landscapeType}</div>
-              </div>
-              <button onclick="addSpotToCustomById(${s.id})" class="px-2 py-1 rounded-lg bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white text-xs font-bold transition flex items-center gap-0.5 shrink-0 border border-purple-200">
-                <i data-lucide="plus" class="w-3 h-3"></i>
-                <span>加入</span>
-              </button>
-            </div>
-          `).join('')}
+
+        <div id="customPoolList" class="grid grid-cols-1 gap-1.5">
+          <!-- Filtered items will be rendered here -->
         </div>
       `;
-      container.appendChild(poolSection);
 
+      container.appendChild(poolSection);
+      renderFilteredPoolItems();
       lucide.createIcons();
     }
 
-    function previewAndFlyTo(coords) {
+    function renderFilteredPoolItems() {
+      const listEl = document.getElementById('customPoolList');
+      if (!listEl) return;
+      const unselectedAll = SCENIC_SPOTS_DATA.filter(s => !customSelectedSpots.some(cs => cs.id === s.id));
+      
+      const filtered = unselectedAll.filter(s => {
+        const matchProv = customPoolProvince === '全部' || 
+          (customPoolProvince === '京津' ? (s.province === '北京' || s.province === '天津') :
+           customPoolProvince === '其他' ? (['吉林', '黑龙江', '山西', '山东'].includes(s.province)) :
+           s.province === customPoolProvince);
+        const matchQuery = !customPoolKeyword || 
+          s.shortName.toLowerCase().includes(customPoolKeyword.toLowerCase()) ||
+          s.fullName.toLowerCase().includes(customPoolKeyword.toLowerCase()) ||
+          s.province.toLowerCase().includes(customPoolKeyword.toLowerCase()) ||
+          s.landscapeType.toLowerCase().includes(customPoolKeyword.toLowerCase());
+        return matchProv && matchQuery;
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="text-center py-4 text-xs text-slate-400">无符合条件的备选景区</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(s => `
+        <div class="p-2 rounded-xl border border-slate-200 bg-white hover:bg-purple-50/60 hover:border-purple-200 transition flex items-center justify-between gap-2 shadow-xs group">
+          <div class="min-w-0 cursor-pointer flex-1" onclick="previewAndFlyTo([${s.coords}], '${s.shortName}')">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-xs text-slate-800 group-hover:text-purple-900 truncate">${s.shortName}</span>
+              <span class="text-[9px] px-1 py-0.2 rounded bg-slate-100 text-slate-600 font-mono shrink-0">${s.province}</span>
+            </div>
+            <div class="text-[10px] text-slate-500 truncate mt-0.5">${s.landscapeType}</div>
+          </div>
+          <button onclick="addSpotToCustomById(${s.id})" class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white text-xs font-bold transition flex items-center gap-1 shrink-0 border border-purple-200 active:scale-95">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>加入</span>
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function setCustomPoolProvince(prov) {
+      customPoolProvince = prov;
+      renderCustomRouteSidebar();
+    }
+
+    function handleCustomPoolSearch(val) {
+      customPoolKeyword = val.trim();
+      renderFilteredPoolItems();
+    }
+
+    function previewAndFlyTo(coords, name) {
       map.flyTo(coords, 9, { duration: 1.2 });
+      if (isMobile()) {
+        closeMobileDrawer();
+        if (name) showToast(`已在地图定位：${name}`, 'info');
+      }
     }
 
     function addSpotToCustomById(id) {
@@ -2345,9 +2533,7 @@
       document.getElementById('fitRouteBtn').addEventListener('click', () => {
         const pad = isMobile() ? [20, 20] : [40, 40];
         if (isCustomMode) {
-          if (customSelectedSpots.length > 0) {
-            map.fitBounds(customRoutePolyline.getBounds().pad(0.1), { padding: pad });
-          }
+          fitCustomRouteBounds();
         } else if (isCompareMode) {
           const allBounds = L.latLngBounds([]);
           Object.keys(ROUTES_DATA).forEach(id => allBounds.extend(routeLayers[id].getBounds()));
