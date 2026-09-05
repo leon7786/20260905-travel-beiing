@@ -155,37 +155,104 @@
       z-index: 999 !important;
     }
 
-    /* Subtle Scenic Spot Marker (以不显眼的方式显示在地图上) */
+    /* Subtle Scenic Spot Marker (浅灰深灰动态渐变微标) */
     .subtle-spot-container {
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      width: 24px;
+      height: 24px;
     }
-    .subtle-spot-dot {
-      width: 10px;
-      height: 10px;
+
+    /* Outer breathing aura in subtle light-to-dark gray */
+    .subtle-spot-container::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: rgba(71, 85, 105, 0.55);
-      border: 1.5px solid #ffffff;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      background: radial-gradient(circle, rgba(148, 163, 184, 0.5) 0%, rgba(71, 85, 105, 0.2) 50%, transparent 75%);
+      animation: dynamicGrayHalo 3.2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
     }
+
+    @keyframes dynamicGrayHalo {
+      0%, 100% {
+        transform: scale(0.75);
+        opacity: 0.35;
+      }
+      50% {
+        transform: scale(1.35);
+        opacity: 0.85;
+      }
+    }
+
+    /* Core dot with dynamic light-gray to dark-gray shifting gradient */
+    .subtle-spot-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 25%, #64748b 55%, #334155 80%, #0f172a 100%);
+      background-size: 300% 300%;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(100, 116, 139, 0.35), 0 2px 5px rgba(15, 23, 42, 0.25);
+      animation: dynamicGrayGradient 4s ease-in-out infinite;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes dynamicGrayGradient {
+      0% {
+        background-position: 0% 50%;
+        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.95), 0 1.5px 4px rgba(15, 23, 42, 0.25), 0 0 5px rgba(203, 213, 225, 0.6);
+      }
+      50% {
+        background-position: 100% 50%;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 2.5px 8px rgba(15, 23, 42, 0.35), 0 0 9px rgba(71, 85, 105, 0.7);
+      }
+      100% {
+        background-position: 0% 50%;
+        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.95), 0 1.5px 4px rgba(15, 23, 42, 0.25), 0 0 5px rgba(203, 213, 225, 0.6);
+      }
+    }
+
+    /* Hover State: smoothly enlarges with enhanced light/dark gray dynamic contrast */
     .subtle-spot-container:hover .subtle-spot-dot {
-      width: 16px;
-      height: 16px;
-      background: #0284c7;
+      width: 17px;
+      height: 17px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 20%, #475569 60%, #0f172a 100%);
+      background-size: 200% 200%;
       border: 2px solid #ffffff;
-      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.3), 0 3px 10px rgba(0,0,0,0.25);
+      box-shadow: 0 0 0 4px rgba(71, 85, 105, 0.3), 0 4px 12px rgba(15, 23, 42, 0.4);
       transform: scale(1.15);
+      animation-duration: 2s;
+    }
+
+    /* Active click bounce */
+    .subtle-spot-container:active .subtle-spot-dot {
+      transform: scale(0.9);
+    }
+
+    /* When added into custom route */
+    .subtle-spot-container.in-custom-route::before {
+      background: radial-gradient(circle, rgba(192, 132, 252, 0.55) 0%, rgba(124, 58, 237, 0.2) 55%, transparent 75%);
     }
     .subtle-spot-container.in-custom-route .subtle-spot-dot {
       width: 18px;
       height: 18px;
-      background: #7c3aed !important;
+      background: linear-gradient(135deg, #f3e8ff 0%, #a855f7 35%, #6b21a8 75%, #3b0764 100%) !important;
+      background-size: 200% 200%;
       border: 2px solid #ffffff;
-      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.35), 0 3px 8px rgba(0,0,0,0.25);
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.4), 0 3px 10px rgba(0,0,0,0.3);
+      animation: dynamicPurpleGradient 3s ease-in-out infinite !important;
+    }
+    @keyframes dynamicPurpleGradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
     }
     .custom-order-badge {
       position: absolute;
@@ -349,10 +416,10 @@
       </nav>
       
       <!-- Subtle Spots Toggle Button (Hover Feature indicator) -->
-      <button id="toggleSubtleSpotsBtn" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 transition" title="开启/隐藏地图上的20大核心景区微标（鼠标悬停查看特色）">
-        <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+      <button id="toggleSubtleSpotsBtn" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 transition" title="开启/隐藏地图上的20大核心景区微标（浅灰深灰动态渐变 · 鼠标悬停查看特色）">
+        <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-slate-200 via-slate-500 to-slate-800 border border-white shadow-xs animate-pulse"></span>
         <span class="hidden md:inline">20大景区微标</span>
-        <span class="text-[10px] text-sky-600 bg-sky-50 px-1 py-0.2 rounded border border-sky-200 font-mono">悬停可见</span>
+        <span class="text-[10px] text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono font-semibold">浅深灰动态渐变</span>
       </button>
 
       <!-- Desktop & iPad Search Input -->
@@ -618,9 +685,9 @@
             <span class="w-3 h-3 rounded-full bg-purple-600 shrink-0 inline-block shadow-sm"></span>
             <span class="text-purple-700 font-bold truncate">自定义：自由画线连接</span>
           </div>
-          <div class="flex items-center gap-2 pt-1 border-t border-slate-100 text-[11px] text-slate-500">
-            <span class="w-2.5 h-2.5 rounded-full bg-slate-400 border border-white shrink-0 inline-block shadow-xs"></span>
-            <span>20大景点微标（鼠标悬停显特色）</span>
+          <div class="flex items-center gap-2 pt-1 border-t border-slate-100 text-[11px] text-slate-600">
+            <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-slate-200 via-slate-500 to-slate-800 border border-white shrink-0 inline-block shadow-xs animate-pulse"></span>
+            <span class="font-medium">20大景点微标（浅深灰渐变 · 悬浮显特色）</span>
           </div>
         </div>
       </div>
@@ -1067,12 +1134,12 @@
       selectRoute(1);
     }
 
-    // Build Subtle Scenic Spots Layer
+    // Build Subtle Scenic Spots Layer (浅灰深灰动态渐变微标)
     function buildSubtleScenicSpots() {
       subtleSpotsLayer = L.featureGroup();
 
       SCENIC_SPOTS_DATA.forEach(spot => {
-        // Subtle dot icon
+        // Subtle dot icon with dynamic light/dark gray gradient
         const html = `
           <div class="subtle-spot-container" id="subtle-marker-${spot.id}">
             <div class="subtle-spot-dot" title="${spot.shortName}"></div>
@@ -1082,21 +1149,21 @@
         const icon = L.divIcon({
           html: html,
           className: '',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
         });
 
         const marker = L.marker(spot.coords, { icon: icon });
 
-        // Tooltip: shown ONLY on mouseover (鼠标指上去才会显示)
+        // Tooltip: shown on mouseover (鼠标指上去才会显示)
         const tooltipHtml = `
-          <div class="space-y-1.5 text-left">
+          <div class="space-y-1.5 text-left min-w-[210px]">
             <div class="flex items-center justify-between gap-1.5 border-b border-slate-100 pb-1">
-              <span class="font-bold text-xs text-sky-900 truncate">${spot.fullName.split('（')[0]}</span>
-              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 shrink-0 font-mono">${spot.province}</span>
+              <span class="font-bold text-xs text-slate-900 truncate">${spot.fullName.split('（')[0]}</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-800 shrink-0 font-mono">${spot.province}</span>
             </div>
             <div class="text-[10px] text-slate-500 font-medium">
-              <span class="text-slate-400">风景类型：</span><span class="text-slate-700 font-semibold">${spot.landscapeType}</span>
+              <span class="text-slate-400">风景类型：</span><span class="text-slate-800 font-semibold">${spot.landscapeType}</span>
             </div>
             <div class="text-[10px] text-slate-600 leading-snug">
               <span class="text-slate-400">包含景点：</span>${spot.subSpots}
@@ -1104,8 +1171,8 @@
             <div class="text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded-lg border border-slate-100 leading-relaxed">
               💡 ${spot.desc}
             </div>
-            <div class="pt-1 flex items-center justify-between text-[9px] text-purple-600 font-medium border-t border-slate-100">
-              <span>${isCustomMode ? '✍️ 点击可加入自定义线路' : '👉 点击可在列表/地图高亮'}</span>
+            <div class="pt-1 flex items-center justify-between text-[9px] text-purple-700 font-semibold border-t border-slate-100">
+              <span>${isCustomMode ? '✍️ 点击直接连线此景点' : '👉 点击查看操作或加入画线'}</span>
               <span class="text-slate-400">#${spot.id}</span>
             </div>
           </div>
@@ -1113,18 +1180,44 @@
 
         marker.bindTooltip(tooltipHtml, {
           direction: 'top',
-          offset: [0, -7],
+          offset: [0, -9],
           opacity: 1,
           className: 'scenic-spot-hover-card'
         });
 
-        // Click handler
+        // Click handler with rich actions
         marker.on('click', () => {
           if (isCustomMode) {
             toggleSpotInCustomRoute(spot);
           } else {
-            handleSearch(spot.shortName);
-            showToast(`已定位到：${spot.shortName}`, 'info');
+            // Rich interactive popup on direct click
+            const popupHtml = `
+              <div class="space-y-2 text-left min-w-[220px] max-w-[280px]">
+                <div class="flex items-center justify-between gap-1.5 border-b border-slate-100 pb-1.5">
+                  <span class="font-bold text-xs text-slate-900 truncate">${spot.fullName.split('（')[0]}</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 shrink-0 font-mono">${spot.province}</span>
+                </div>
+                <div class="text-[10px] text-slate-500 font-medium">
+                  <span class="text-slate-400">景观：</span><span class="text-slate-700 font-semibold">${spot.landscapeType}</span>
+                </div>
+                <div class="text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded-lg border border-slate-100 leading-relaxed">
+                  ${spot.desc}
+                </div>
+                <div class="pt-1 flex items-center justify-between gap-1.5 border-t border-slate-100">
+                  <a href="attractions.html" class="px-2 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-medium transition flex items-center gap-1">
+                    <i data-lucide="book-open" class="w-3 h-3"></i>
+                    <span>图鉴详情</span>
+                  </a>
+                  <button onclick="addSpotToCustomById(${spot.id}); selectCustomRouteMode();" class="px-2.5 py-1 rounded-md bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold shadow-xs transition flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3 h-3"></i>
+                    <span>加入画线规划</span>
+                  </button>
+                </div>
+              </div>
+            `;
+            marker.bindPopup(popupHtml).openPopup();
+            lucide.createIcons();
+            showToast(`已选中：${spot.shortName}（可一键加入自定义线路）`, 'info');
           }
         });
 
