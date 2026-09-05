@@ -166,23 +166,23 @@
       height: 24px;
     }
 
-    /* Outer breathing aura in subtle light-to-dark gray */
+    /* Outer breathing aura in subtle light-to-dark gray (1s 周期) */
     .subtle-spot-container::before {
       content: '';
       position: absolute;
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(148, 163, 184, 0.5) 0%, rgba(71, 85, 105, 0.2) 50%, transparent 75%);
-      animation: dynamicGrayHalo 3.2s ease-in-out infinite;
+      background: radial-gradient(circle, rgba(226, 232, 240, 0.75) 0%, rgba(71, 85, 105, 0.25) 50%, transparent 75%);
+      animation: dynamicGrayHalo 1s ease-in-out infinite;
       pointer-events: none;
       z-index: 1;
     }
 
     @keyframes dynamicGrayHalo {
       0%, 100% {
-        transform: scale(0.75);
-        opacity: 0.35;
+        transform: scale(0.7);
+        opacity: 0.25;
       }
       50% {
         transform: scale(1.35);
@@ -190,33 +190,30 @@
       }
     }
 
-    /* Core dot with dynamic light-gray to dark-gray shifting gradient */
+    /* Core dot with dynamic light-gray to dark-gray shifting gradient (1s 周期明暗渐变) */
     .subtle-spot-dot {
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 25%, #64748b 55%, #334155 80%, #0f172a 100%);
-      background-size: 300% 300%;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 25%, #64748b 55%, #1e293b 80%, #090d16 100%);
+      background-size: 260% 260%;
       border: 1.5px solid #ffffff;
-      box-shadow: 0 0 0 1px rgba(100, 116, 139, 0.35), 0 2px 5px rgba(15, 23, 42, 0.25);
-      animation: dynamicGrayGradient 4s ease-in-out infinite;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: dynamicGrayGradient 1s ease-in-out infinite;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       z-index: 2;
     }
 
     @keyframes dynamicGrayGradient {
-      0% {
+      0%, 100% {
         background-position: 0% 50%;
-        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.95), 0 1.5px 4px rgba(15, 23, 42, 0.25), 0 0 5px rgba(203, 213, 225, 0.6);
+        box-shadow: 0 0 0 1.5px #ffffff, 0 0 8px rgba(241, 245, 249, 1), 0 1.5px 3px rgba(15, 23, 42, 0.25);
+        filter: brightness(1.25);
       }
       50% {
         background-position: 100% 50%;
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 2.5px 8px rgba(15, 23, 42, 0.35), 0 0 9px rgba(71, 85, 105, 0.7);
-      }
-      100% {
-        background-position: 0% 50%;
-        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.95), 0 1.5px 4px rgba(15, 23, 42, 0.25), 0 0 5px rgba(203, 213, 225, 0.6);
+        box-shadow: 0 0 0 1.5px #ffffff, 0 0 4px rgba(15, 23, 42, 0.65), 0 2px 7px rgba(15, 23, 42, 0.45);
+        filter: brightness(0.65);
       }
     }
 
@@ -227,9 +224,9 @@
       background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 20%, #475569 60%, #0f172a 100%);
       background-size: 200% 200%;
       border: 2px solid #ffffff;
-      box-shadow: 0 0 0 4px rgba(71, 85, 105, 0.3), 0 4px 12px rgba(15, 23, 42, 0.4);
+      box-shadow: 0 0 0 4px rgba(71, 85, 105, 0.35), 0 4px 12px rgba(15, 23, 42, 0.4);
       transform: scale(1.15);
-      animation-duration: 2s;
+      animation-duration: 0.8s;
     }
 
     /* Active click bounce */
@@ -416,10 +413,10 @@
       </nav>
       
       <!-- Subtle Spots Toggle Button (Hover Feature indicator) -->
-      <button id="toggleSubtleSpotsBtn" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 transition" title="开启/隐藏地图上的20大核心景区微标（浅灰深灰动态渐变 · 鼠标悬停查看特色）">
+      <button id="toggleSubtleSpotsBtn" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 transition" title="开启/隐藏地图上的31大核心景区微标（1秒明暗动态渐变 · 鼠标悬停查看特色）">
         <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-slate-200 via-slate-500 to-slate-800 border border-white shadow-xs animate-pulse"></span>
         <span class="hidden md:inline">31大景区微标</span>
-        <span class="text-[10px] text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono font-semibold">浅深灰动态渐变</span>
+        <span class="text-[10px] text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono font-semibold">1秒明暗渐变</span>
       </button>
 
       <!-- Desktop & iPad Search Input -->
